@@ -51,3 +51,20 @@ fresh ⇄ healed toggle when both variants exist. See
 - Artists: `src/data/artists.ts`
 - Styles: `src/data/styles.ts`
 - UI copy (EN/ES): `src/i18n/en.ts`, `src/i18n/es.ts`
+
+## Deploying to Cloudflare Pages
+
+The site builds to static files in `dist/`, ready for Cloudflare Pages.
+
+1. In the Cloudflare dashboard, go to **Workers & Pages → Create → Pages →
+   Connect to Git** and pick this repo.
+2. Build settings: framework preset **Astro**, build command `npm run
+   build`, build output directory `dist`.
+3. After the first deploy, go to the project's **Custom domains** tab and
+   add `catandcobra.terrerov.com` (requires `terrerov.com` to be an active
+   zone on the same Cloudflare account).
+
+Alternatively, `.github/workflows/deploy.yml` deploys automatically on
+push to `main` via `wrangler pages deploy` — add the
+`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repo secrets (Pages
+Edit permission) for it to run.
