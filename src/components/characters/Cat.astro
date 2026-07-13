@@ -1,0 +1,81 @@
+---
+/**
+ * The Cat — layered SVG traced from the studio logo: lounging body with
+ * forelegs stretched forward, serene closed eyes, pink ear strokes,
+ * fine ink outline. Breathing body, soft eye squeeze, flicking tail.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<svg
+  class={`cat-svg ${className}`}
+  viewBox="0 0 340 250"
+  fill="none"
+  aria-hidden="true"
+  role="img"
+>
+  <g class="anim-breathe">
+    <!-- tail curling around the front right -->
+    <path
+      class="anim-tail"
+      d="M298 190 C324 198 328 220 304 228 C278 237 236 237 206 233 C238 230 276 227 292 218 C304 211 302 198 286 195 Z"
+      fill="#dbc9a6" stroke="#57462f" stroke-width="4.5" stroke-linejoin="round"
+    ></path>
+
+    <!-- ears: cream with pink inner strokes -->
+    <g>
+      <path d="M82 92 C74 62 78 44 87 32 C101 42 114 56 120 70 Z" fill="#eae0c2" stroke="#57462f" stroke-width="4.5" stroke-linejoin="round"></path>
+      <path d="M92 64 L96 53 M100 70 L106 60 M96 76 L104 68" stroke="#e8a89f" stroke-width="3" stroke-linecap="round"></path>
+      <path d="M134 64 C136 36 146 22 157 14 C168 26 176 40 178 54 Z" fill="#eae0c2" stroke="#57462f" stroke-width="4.5" stroke-linejoin="round"></path>
+      <path d="M148 52 L152 40 M157 56 L163 45 M143 58 L139 50" stroke="#e8a89f" stroke-width="3" stroke-linecap="round"></path>
+    </g>
+
+    <!-- head + body in one relaxed mass -->
+    <path
+      d="M40 176
+         C34 128 60 82 114 72
+         C152 65 180 80 194 98
+         C222 88 258 92 288 110
+         C316 128 326 158 320 186
+         C314 212 288 226 252 228
+         L96 228
+         C64 226 44 202 40 176 Z"
+      fill="#eae0c2" stroke="#57462f" stroke-width="4.5" stroke-linejoin="round"
+    ></path>
+
+    <!-- chest / shoulder contour -->
+    <path d="M184 116 C192 146 190 180 176 210" stroke="#57462f" stroke-width="3.2" stroke-linecap="round" opacity="0.55"></path>
+
+    <!-- forelegs stretched forward -->
+    <g>
+      <path
+        d="M138 204 C100 198 62 200 46 208 C36 212 36 222 46 226 C58 230 126 230 138 228 Z"
+        fill="#eae0c2" stroke="#57462f" stroke-width="4" stroke-linejoin="round"
+      ></path>
+      <path
+        d="M150 230 C150 218 144 211 130 209 C148 210 160 216 160 223 C160 228 156 230 150 230 Z"
+        fill="#dbc9a6" stroke="#57462f" stroke-width="3.5" stroke-linejoin="round"
+      ></path>
+      <path d="M54 210 L54 224 M66 208 L66 226" stroke="#57462f" stroke-width="3" stroke-linecap="round"></path>
+    </g>
+
+    <!-- face -->
+    <g>
+      <!-- serene closed eyes -->
+      <path class="anim-blink" d="M72 124 Q84 132 96 124" stroke="#57462f" stroke-width="4.5" stroke-linecap="round"></path>
+      <path class="anim-blink" d="M130 122 Q142 130 154 122" stroke="#57462f" stroke-width="4.5" stroke-linecap="round"></path>
+      <!-- tiny nose + soft mouth -->
+      <path d="M112 142 L120 142 L116 147 Z" fill="#57462f" stroke="#57462f" stroke-width="2" stroke-linejoin="round"></path>
+      <path d="M108 152 Q116 157 124 152" stroke="#57462f" stroke-width="3.2" stroke-linecap="round" fill="none"></path>
+      <!-- soft blush -->
+      <ellipse cx="66" cy="144" rx="10" ry="6" fill="#e8a89f" opacity="0.65"></ellipse>
+      <ellipse cx="162" cy="142" rx="10" ry="6" fill="#e8a89f" opacity="0.65"></ellipse>
+      <!-- fine whiskers -->
+      <path d="M52 134 L22 128 M52 143 L18 143 M52 152 L22 158" stroke="#57462f" stroke-width="2.4" stroke-linecap="round"></path>
+      <path d="M174 132 L204 126 M176 141 L208 141" stroke="#57462f" stroke-width="2.4" stroke-linecap="round"></path>
+    </g>
+  </g>
+</svg>

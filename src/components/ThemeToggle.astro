@@ -1,0 +1,48 @@
+---
+import { useDict, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useDict(locale);
+---
+
+<!--
+  Theme switch fronted by the two mascots: tap to swap between
+  "cat mode" (light) and "cobra mode" (dark). The active head sits
+  in the sliding pill. Logic lives in AppLayout's delegated script.
+-->
+<button
+  type="button"
+  data-theme-toggle
+  aria-label={t.theme.toggle}
+  title={t.theme.toggle}
+  class="relative flex h-9 w-16 items-center rounded-full border border-line bg-surface-2 px-1 transition-colors"
+>
+  <span
+    class="theme-thumb absolute top-1 left-1 h-7 w-7 rounded-full bg-accent/40 transition-transform duration-300"
+    aria-hidden="true"></span>
+  <span class="relative z-10 grid h-7 w-7 place-items-center" aria-hidden="true">
+    <!-- mini cat head -->
+    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 10 C5 6 7 4.5 7.5 4.5 L10 7 H14 L16.5 4.5 C17 4.5 19 6 19 10 C19 15 16.5 17.5 12 17.5 C7.5 17.5 5 15 5 10 Z" />
+      <path d="M9 11.2 H9.01 M15 11.2 H15.01" stroke-width="2.4" />
+      <path d="M10.8 14 Q12 15 13.2 14" />
+    </svg>
+  </span>
+  <span class="relative z-10 grid h-7 w-7 place-items-center" aria-hidden="true">
+    <!-- mini cobra head -->
+    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3.5 C16 3.5 18.5 7 18 11.5 C17.6 15 15.5 17 12 17.5 C8.5 17 6.4 15 6 11.5 C5.5 7 8 3.5 12 3.5 Z" />
+      <path d="M12 17.5 V21 M9.8 8 H10 M14 8 H14.2" stroke-width="2.2" />
+      <path d="M10 12 Q12 13.4 14 12" />
+    </svg>
+  </span>
+</button>
+
+<style>
+  :global([data-theme='cobra']) .theme-thumb {
+    transform: translateX(1.75rem);
+  }
+</style>

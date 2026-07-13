@@ -1,0 +1,125 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import Accordion from '../Accordion.astro';
+import Cat from '../characters/Cat.astro';
+import Cobra from '../characters/Cobra.astro';
+import { artists } from '../../data/artists';
+import { getStyle } from '../../data/styles';
+import { useDict, type Locale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useDict(locale);
+
+const studioEmail = 'admin@catandcobra.com';
+const mailto = (subject: string) => `mailto:${studioEmail}?subject=${encodeURIComponent(subject)}`;
+---
+
+<AppLayout locale={locale} title={t.booking.title}>
+  <section class="px-6 pt-6">
+    <h1 class="font-display text-3xl font-semibold">{t.booking.title}</h1>
+    <p class="mt-1 text-sm text-ink-soft">{t.booking.sub}</p>
+
+    <!-- steps -->
+    <ol class="mt-6 space-y-3">
+      {
+        t.booking.steps.map((step, i) => (
+          <li class="flex items-start gap-4 rounded-2xl border border-line bg-surface p-4 shadow-(--shadow-card)">
+            <span class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent font-display font-bold text-charcoal">
+              {i + 1}
+            </span>
+            <div>
+              <h2 class="font-display text-base font-semibold">{step.title}</h2>
+              <p class="mt-0.5 text-sm leading-relaxed text-ink-soft">{step.body}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <!-- pick an artist -->
+    <h2 class="mt-12 font-display text-2xl font-semibold">{t.booking.chooseArtist}</h2>
+    <div class="mt-4 space-y-3">
+      {
+        artists.map((artist) => (
+          <a
+            id={artist.id}
+            href={mailto(`Booking request — ${artist.handle}`)}
+            class="flex items-center gap-4 rounded-2xl border border-line bg-surface p-4 shadow-(--shadow-card) transition-transform active:scale-[0.98]"
+            style={`scroll-margin-top: 5rem`}
+          >
+            <span
+              class="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full"
+              style={`background:${artist.accent}40`}
+            >
+              {artist.mood === 'cat' ? <Cat class="w-12 translate-y-1" /> : <Cobra class="h-12" />}
+            </span>
+            <span class="min-w-0 grow">
+              <span class="block font-display font-semibold">{artist.handle}</span>
+              <span class="block truncate text-xs text-ink-soft">
+                {artist.styles.map((s) => getStyle(s)?.name[locale]).filter(Boolean).join(' · ')}
+              </span>
+            </span>
+            <span class="shrink-0 rounded-full bg-accent px-4 py-2 font-display text-xs font-bold text-charcoal">
+              {t.artists.bookWith.split(' ')[0]}
+            </span>
+          </a>
+        ))
+      }
+      <a
+        href={mailto('Booking request — help me choose an artist')}
+        class="block rounded-2xl border-2 border-dashed border-line p-4 text-center font-display text-sm font-semibold text-ink-soft transition-colors hover:text-ink"
+      >
+        {t.booking.notSure}
+      </a>
+    </div>
+
+    <!-- deposit -->
+    <div class="mt-10 rounded-(--radius-card) bg-accent p-6 text-charcoal shadow-(--shadow-float)">
+      <h2 class="flex items-center gap-2 font-display text-xl font-semibold">
+        <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M14.8 9.2 C14.3 8.3 13.2 7.8 12 7.8 C10.4 7.8 9.2 8.7 9.2 10 C9.2 12.8 15 11.4 15 14 C15 15.3 13.7 16.2 12 16.2 C10.6 16.2 9.5 15.6 9 14.7 M12 6.2 V7.8 M12 16.2 V17.8"></path>
+        </svg>
+        {t.booking.depositTitle}
+      </h2>
+      <p class="mt-2 text-sm leading-relaxed font-medium opacity-85">{t.booking.depositBody}</p>
+    </div>
+
+    <!-- contact -->
+    <h2 class="mt-10 font-display text-2xl font-semibold">{t.booking.contactTitle}</h2>
+    <div class="mt-4 flex gap-3">
+      <a
+        href={mailto('Tattoo inquiry')}
+        class="flex flex-1 items-center justify-center gap-2 rounded-full bg-accent py-3 font-display text-sm font-semibold text-charcoal transition-transform active:scale-[0.98]"
+      >
+        <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3.5" y="5.5" width="17" height="13" rx="2.5"></rect>
+          <path d="M4.5 7.5 L12 12.5 L19.5 7.5"></path>
+        </svg>
+        {t.booking.emailLabel}
+      </a>
+      <a
+        href="https://instagram.com/catandcobra"
+        target="_blank"
+        rel="noopener"
+        class="flex flex-1 items-center justify-center gap-2 rounded-full border border-accent py-3 font-display text-sm font-semibold text-accent-strong transition-transform active:scale-[0.98]"
+      >
+        <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="4" y="4" width="16" height="16" rx="4.5"></rect>
+          <circle cx="12" cy="12" r="3.6"></circle>
+          <circle cx="16.8" cy="7.2" r="0.9" fill="currentColor" stroke="none"></circle>
+        </svg>
+        {t.booking.instagramLabel}
+      </a>
+    </div>
+
+    <!-- FAQ -->
+    <h2 class="mt-10 font-display text-2xl font-semibold">{t.booking.faqTitle}</h2>
+    <div class="mt-4 space-y-3">
+      {t.booking.faq.map((f) => <Accordion q={f.q} a={f.a} />)}
+    </div>
+  </section>
+</AppLayout>

@@ -1,0 +1,157 @@
+---
+/**
+ * The animated logo — the studio emblem rebuilt layer by layer (cream
+ * disc, peach circle, cat in front, cobra draped over its back) so it can:
+ *   1. assemble itself on first paint,
+ *   2. live subtly (breathing, sway, blinks),
+ *   3. come apart on scroll (disc opens, characters drift) — the logo
+ *      "transforms" into the page,
+ *   4. morph into the header brand mark via view transitions.
+ * Each layer nests three wrappers: scroll-driven ▸ parallax ▸ assemble.
+ */
+import Cat from './characters/Cat.astro';
+import Cobra from './characters/Cobra.astro';
+---
+
+<div
+  class="logo-scene relative mx-auto aspect-square w-full max-w-sm"
+  data-hero-scene
+  transition:name="brand"
+>
+  <!-- cream disc -->
+  <div class="logo-layer logo-disc absolute inset-0">
+    <div class="parallax h-full w-full" style="--depth: 4px">
+      <div class="anim-bloom h-full w-full rounded-full bg-surface shadow-(--shadow-card)"></div>
+    </div>
+  </div>
+
+  <!-- peach circle -->
+  <div class="logo-layer logo-ring absolute inset-[12%]">
+    <div class="parallax h-full w-full" style="--depth: 8px">
+      <div
+        class="anim-bloom h-full w-full rounded-full transition-colors duration-300"
+        style="background: var(--scene-disc); animation-delay: 120ms"
+      >
+      </div>
+    </div>
+  </div>
+
+  <!-- cat lounging in front -->
+  <div class="logo-layer logo-cat absolute bottom-[17%] left-[6%] w-[72%]">
+    <div class="parallax" style="--depth: 16px">
+      <div class="anim-rise" style="animation-delay: 260ms">
+        <Cat class="w-full drop-shadow-sm" />
+      </div>
+    </div>
+  </div>
+
+  <!-- cobra draped over the cat's back, neck rising behind -->
+  <div class="logo-layer logo-cobra absolute right-[16%] bottom-[25%] w-[38%]">
+    <div class="parallax" style="--depth: 12px">
+      <div class="anim-rise" style="animation-delay: 420ms">
+        <Cobra class="w-full" />
+      </div>
+    </div>
+  </div>
+
+  <!-- two quiet specks of depth -->
+  <div class="logo-layer absolute inset-0" aria-hidden="true">
+    <div class="parallax h-full w-full" style="--depth: 22px">
+      <span class="anim-float absolute top-[14%] left-[15%] h-2 w-2 rounded-full bg-duo opacity-50"></span>
+      <span class="anim-float absolute right-[10%] bottom-[26%] h-1.5 w-1.5 rounded-full bg-accent opacity-40" style="animation-delay: -3s"></span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .parallax {
+    transform: translate3d(
+      calc(var(--px, 0) * var(--depth, 8px)),
+      calc(var(--py, 0) * var(--depth, 8px)),
+      0
+    );
+    transition: transform 250ms ease-out;
+    will-change: transform;
+  }
+
+  /* The logo opens up as you scroll away from the hero */
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .logo-layer {
+        animation: none linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 70vh;
+      }
+      .logo-disc {
+        animation-name: logo-disc-open;
+      }
+      .logo-ring {
+        animation-name: logo-ring-open;
+      }
+      .logo-cat {
+        animation-name: logo-cat-part;
+      }
+      .logo-cobra {
+        animation-name: logo-cobra-part;
+      }
+    }
+  }
+  @keyframes logo-disc-open {
+    to {
+      transform: scale(1.3);
+      opacity: 0;
+    }
+  }
+  @keyframes logo-ring-open {
+    to {
+      transform: scale(1.12);
+      opacity: 0.35;
+    }
+  }
+  @keyframes logo-cat-part {
+    to {
+      transform: translate(-30px, 14px);
+    }
+  }
+  @keyframes logo-cobra-part {
+    to {
+      transform: translate(30px, -18px);
+    }
+  }
+</style>
+
+<script>
+  function initHero() {
+    const scene = document.querySelector<HTMLElement>('[data-hero-scene]');
+    if (!scene || scene.dataset.init) return;
+    scene.dataset.init = '1';
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const set = (x: number, y: number) => {
+      scene.style.setProperty('--px', String(Math.max(-1, Math.min(1, x))));
+      scene.style.setProperty('--py', String(Math.max(-1, Math.min(1, y))));
+    };
+
+    window.addEventListener(
+      'pointermove',
+      (e) => {
+        const r = scene.getBoundingClientRect();
+        set(
+          (e.clientX - (r.left + r.width / 2)) / (r.width / 2),
+          (e.clientY - (r.top + r.height / 2)) / (r.height / 2),
+        );
+      },
+      { passive: true },
+    );
+
+    window.addEventListener(
+      'deviceorientation',
+      (e) => {
+        if (e.gamma == null || e.beta == null) return;
+        set(e.gamma / 35, (e.beta - 45) / 35);
+      },
+      { passive: true },
+    );
+  }
+  document.addEventListener('astro:page-load', initHero);
+</script>

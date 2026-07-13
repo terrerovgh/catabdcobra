@@ -1,0 +1,80 @@
+---
+/**
+ * Horizontal snap-scrolling card deck with page dots.
+ * Cards go in the slot with class="swipe-card".
+ */
+interface Props {
+  class?: string;
+  depth?: boolean;
+}
+const { class: className = '', depth = true } = Astro.props;
+---
+
+<div class={`swipe-deck-wrap ${className}`} data-swipe-deck>
+  <div class="swipe-deck py-4" data-depth={depth ? '' : undefined}>
+    <slot />
+  </div>
+  <div class="deck-dots flex justify-center gap-1.5 pt-1" aria-hidden="true"></div>
+</div>
+
+<style>
+  .deck-dots :global(.dot) {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 999px;
+    background: var(--line);
+    transition: all 250ms ease;
+  }
+  .deck-dots :global(.dot.active) {
+    width: 1.1rem;
+    background: var(--accent);
+  }
+</style>
+
+<script>
+  function initDecks() {
+    document.querySelectorAll<HTMLElement>('[data-swipe-deck]').forEach((wrap) => {
+      if (wrap.dataset.init) return;
+      wrap.dataset.init = '1';
+
+      const deck = wrap.querySelector<HTMLElement>('.swipe-deck');
+      const dotsBox = wrap.querySelector<HTMLElement>('.deck-dots');
+      if (!deck || !dotsBox) return;
+
+      const cards = [...deck.querySelectorAll<HTMLElement>('.swipe-card')];
+      if (cards.length < 2) return;
+
+      dotsBox.innerHTML = '';
+      const dots = cards.map((_, i) => {
+        const d = document.createElement('span');
+        d.className = 'dot' + (i === 0 ? ' active' : '');
+        dotsBox.appendChild(d);
+        return d;
+      });
+
+      let raf = 0;
+      deck.addEventListener(
+        'scroll',
+        () => {
+          cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(() => {
+            const center = deck.scrollLeft + deck.clientWidth / 2;
+            let best = 0;
+            let bestDist = Infinity;
+            cards.forEach((card, i) => {
+              const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+              const dist = Math.abs(cardCenter - center);
+              if (dist < bestDist) {
+                bestDist = dist;
+                best = i;
+              }
+            });
+            dots.forEach((d, i) => d.classList.toggle('active', i === best));
+          });
+        },
+        { passive: true },
+      );
+    });
+  }
+  document.addEventListener('astro:page-load', initDecks);
+</script>
