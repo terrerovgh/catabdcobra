@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 @import '@fontsource-variable/fredoka';
-@import '@fontsource-variable/nunito';
+@import '@fontsource-variable/inter';
 
 /*
   Cat & Cobra design system — palette sampled from the studio logo:
@@ -16,14 +16,14 @@
   --surface-2: #e4d5ae;
   --text: #57462f;
   --text-soft: #7d6a4e;
-  --accent: #e08a6c;
-  --accent-strong: #cf7051;
-  --accent-soft: #f2b39d;
+  --accent: #d98565;
+  --accent-strong: #c26a4a;
+  --accent-soft: #ecb29c;
   --duo: #87a794;
   --duo-strong: #5f8271;
-  --blush: #f0a8a0;
-  --line: rgb(87 70 47 / 0.18);
-  --shadow: rgb(87 70 47 / 0.22);
+  --blush: #e8a89f;
+  --line: rgb(87 70 47 / 0.14);
+  --shadow: rgb(87 70 47 / 0.18);
   --halo: #e8987c;
   --scene-disc: #e8987c;
   color-scheme: light;
@@ -71,13 +71,14 @@
   --color-brown: #57462f;
   --color-charcoal: #26231f;
 
-  --font-display: 'Fredoka Variable', ui-rounded, system-ui, sans-serif;
-  --font-body: 'Nunito Variable', system-ui, sans-serif;
+  --font-display: 'Inter Variable', system-ui, sans-serif;
+  --font-body: 'Inter Variable', system-ui, sans-serif;
+  --font-brand: 'Fredoka Variable', ui-rounded, system-ui, sans-serif;
 
-  --shadow-card: 0 10px 30px -12px var(--shadow), 0 2px 8px -4px var(--shadow);
-  --shadow-float: 0 24px 50px -20px var(--shadow);
+  --shadow-card: 0 8px 24px -14px var(--shadow), 0 1px 4px -2px var(--shadow);
+  --shadow-float: 0 18px 40px -22px var(--shadow);
 
-  --radius-card: 1.5rem;
+  --radius-card: 1.25rem;
 }
 
 html {
@@ -100,6 +101,21 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.font-brand {
+  font-family: var(--font-brand);
+  letter-spacing: -0.01em;
+}
+
+/* Small overline labels used above section titles */
+.overline {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
 }
 
 /* App feel: no rubber-band white flash, no text-select on UI chrome */
@@ -201,7 +217,13 @@ nav {
     transform-box: fill-box;
   }
   .anim-float {
-    animation: floaty 6s ease-in-out infinite;
+    animation: floaty 8s ease-in-out infinite;
+  }
+  .anim-bloom {
+    animation: bloom 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .anim-rise {
+    animation: rise-in 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .anim-tail {
     animation: tailflick 7s ease-in-out infinite;
@@ -221,27 +243,28 @@ nav {
     transform: scaleY(1);
   }
   50% {
-    transform: scaleY(1.025);
+    transform: scaleY(1.018);
   }
 }
 @keyframes sway {
   0%,
   100% {
-    transform: rotate(-3.5deg);
+    transform: rotate(-2.2deg);
   }
   50% {
-    transform: rotate(3.5deg);
+    transform: rotate(2.2deg);
   }
 }
+/* Serene closed eyes squeeze softly now and then */
 @keyframes blink {
   0%,
-  93%,
+  91%,
   100% {
     transform: scaleY(1);
   }
-  95%,
-  97% {
-    transform: scaleY(0.08);
+  94%,
+  96% {
+    transform: scaleY(0.55);
   }
 }
 @keyframes floaty {
@@ -250,7 +273,28 @@ nav {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-7px);
+  }
+}
+/* Logo assembly on first paint */
+@keyframes bloom {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 @keyframes tailflick {

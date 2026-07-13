@@ -1,7 +1,9 @@
 ---
 /**
- * The Cobra — hand-built layered SVG recreated from the studio logo.
- * The hood + head sway from the coil; the tongue flicks on a timer.
+ * The Cobra — layered SVG traced from the studio logo: the draped hood
+ * (the shape that saddles the cat's back in the logo) forms the base,
+ * an S-curved neck climbs with a ladder of cream belly scutes, and a
+ * small dark-teal head tips forward. Neck sways, tongue flicks.
  */
 interface Props {
   class?: string;
@@ -16,54 +18,57 @@ const { class: className = '' } = Astro.props;
   aria-hidden="true"
   role="img"
 >
-  <!-- coiled base (static anchor) -->
-  <ellipse cx="115" cy="284" rx="80" ry="30" fill="#87a794" stroke="#57462f" stroke-width="6"></ellipse>
-  <ellipse cx="115" cy="300" rx="62" ry="25" fill="#93b3a0" stroke="#57462f" stroke-width="6"></ellipse>
-  <path d="M84 296 Q115 306 146 296" stroke="#57462f" stroke-width="4" stroke-linecap="round"></path>
-
   <g class="anim-sway">
-    <!-- neck: gentle S-curve down into the coil -->
-    <path d="M115 166 C130 196 94 222 104 252 C108 264 112 270 115 276" stroke="#57462f" stroke-width="40" stroke-linecap="round"></path>
-    <path d="M115 166 C130 196 94 222 104 252 C108 264 112 270 115 276" stroke="#87a794" stroke-width="29" stroke-linecap="round"></path>
-
-    <!-- hood -->
-    <path
-      d="M114 26
-         C160 30 184 72 178 118
-         C173 154 148 176 114 180
-         C80 176 55 154 50 118
-         C44 72 68 30 114 26 Z"
-      fill="#87a794" stroke="#57462f" stroke-width="6" stroke-linejoin="round"
-    ></path>
-
-    <!-- belly scales down the hood -->
-    <g fill="#f0e7c9" stroke="#57462f" stroke-width="4.5" stroke-linejoin="round">
-      <rect x="90" y="64" width="48" height="15" rx="7.5"></rect>
-      <rect x="92" y="84" width="44" height="15" rx="7.5"></rect>
-      <rect x="94" y="104" width="40" height="15" rx="7.5"></rect>
-      <rect x="96" y="124" width="36" height="15" rx="7.5"></rect>
-      <rect x="99" y="144" width="30" height="14" rx="7"></rect>
+    <!-- neck: ink edge, teal body, cream belly, scute rungs -->
+    <path d="M128 262 C148 216 106 172 116 128 C120 104 120 88 112 72" stroke="#57462f" stroke-width="36" stroke-linecap="round"></path>
+    <path d="M128 262 C148 216 106 172 116 128 C120 104 120 88 112 72" stroke="#87a794" stroke-width="29" stroke-linecap="round"></path>
+    <path d="M124 258 C144 214 102 170 112 128 C116 104 116 88 108 74" stroke="#f0e7c9" stroke-width="13" stroke-linecap="round"></path>
+    <g stroke="#57462f" stroke-width="2.4" stroke-linecap="round">
+      <path d="M126 246 L140 250"></path>
+      <path d="M128 230 L142 232"></path>
+      <path d="M126 214 L140 214"></path>
+      <path d="M120 198 L134 196"></path>
+      <path d="M113 182 L127 179"></path>
+      <path d="M108 166 L122 163"></path>
+      <path d="M106 150 L120 148"></path>
+      <path d="M106 134 L120 133"></path>
+      <path d="M108 118 L122 118"></path>
+      <path d="M110 102 L124 103"></path>
+      <path d="M108 88 L122 90"></path>
     </g>
 
-    <!-- head tipping forward -->
-    <g>
+    <!-- small dark head tipping forward -->
+    <g transform="rotate(-10 106 56) translate(-12.72 -6.72) scale(1.12)">
       <path
-        d="M64 44
-           C60 24 80 10 106 10
-           C132 10 150 22 150 40
-           C150 52 140 60 122 60
-           C100 60 76 56 64 44 Z"
-        fill="#6d9181" stroke="#57462f" stroke-width="6" stroke-linejoin="round"
+        d="M78 66 C72 50 84 36 104 34 C124 32 138 42 136 56 C134 68 122 74 106 73 C94 72 84 72 78 66 Z"
+        fill="#5e7d6d" stroke="#57462f" stroke-width="4.5" stroke-linejoin="round"
       ></path>
-      <!-- eye + glint -->
-      <circle cx="84" cy="34" r="5.5" fill="#26231f"></circle>
-      <circle cx="86" cy="32" r="1.8" fill="#f0e7c9"></circle>
-      <!-- mouth -->
-      <path d="M66 44 Q74 49 86 49" stroke="#57462f" stroke-width="3.5" stroke-linecap="round"></path>
-      <!-- forked tongue -->
+      <circle cx="93" cy="52" r="4.5" fill="#26231f"></circle>
+      <circle cx="94.5" cy="50.5" r="1.4" fill="#f0e7c9"></circle>
+      <path d="M79 63 Q87 67 97 66" stroke="#57462f" stroke-width="2.6" stroke-linecap="round"></path>
       <g class="anim-tongue">
-        <path d="M64 46 L44 48 M44 48 L34 42 M44 48 L36 56" stroke="#cf7051" stroke-width="4" stroke-linecap="round"></path>
+        <path d="M78 64 L60 64 M60 64 L51 58 M60 64 L53 71" stroke="#c26a4a" stroke-width="3.4" stroke-linecap="round"></path>
       </g>
     </g>
   </g>
+
+  <!-- draped hood: the saddle shape from the logo, as the base -->
+  <path
+    d="M42 296 C38 258 68 230 114 228 C162 230 196 258 192 298 C190 320 160 332 116 332 C72 332 46 320 42 296 Z"
+    fill="#87a794" stroke="#57462f" stroke-width="4.5" stroke-linejoin="round"
+  ></path>
+  <!-- segmented belly band along its lower edge -->
+  <path
+    d="M52 306 C76 322 158 322 182 304 L 182 310 C160 328 76 328 52 314 Z"
+    fill="#f0e7c9" stroke="#57462f" stroke-width="3"
+  ></path>
+  <g stroke="#57462f" stroke-width="2.2" stroke-linecap="round">
+    <path d="M70 314 L70 322"></path>
+    <path d="M92 318 L92 326"></path>
+    <path d="M116 320 L116 327"></path>
+    <path d="M140 318 L140 326"></path>
+    <path d="M162 314 L162 321"></path>
+  </g>
+  <!-- crease where the neck emerges from the drape -->
+  <path d="M92 238 C104 250 132 252 148 244" stroke="#57462f" stroke-width="3" stroke-linecap="round" opacity="0.55"></path>
 </svg>

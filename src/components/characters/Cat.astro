@@ -1,8 +1,8 @@
 ---
 /**
- * The Cat — hand-built layered SVG recreated from the studio logo.
- * Layers (body, ears, face, paws, tail) animate independently:
- * breathing body, blinking happy-eyes, flicking tail.
+ * The Cat — layered SVG traced from the studio logo: lounging body with
+ * forelegs stretched forward, serene closed eyes, pink ear strokes,
+ * fine ink outline. Breathing body, soft eye squeeze, flicking tail.
  */
 interface Props {
   class?: string;
@@ -18,55 +18,64 @@ const { class: className = '' } = Astro.props;
   role="img"
 >
   <g class="anim-breathe">
-    <!-- tail curled along the front -->
+    <!-- tail curling around the front right -->
     <path
       class="anim-tail"
-      d="M296 186 C330 194 336 222 306 232 C270 244 216 240 186 234 C178 232 178 222 187 221 C224 226 268 228 292 220 C312 213 308 196 288 194 Z"
-      fill="#d8c6a0" stroke="#57462f" stroke-width="6" stroke-linejoin="round"
+      d="M298 190 C324 198 328 220 304 228 C278 237 236 237 206 233 C238 230 276 227 292 218 C304 211 302 198 286 195 Z"
+      fill="#dbc9a6" stroke="#57462f" stroke-width="4.5" stroke-linejoin="round"
     ></path>
 
-    <!-- ears -->
+    <!-- ears: cream with pink inner strokes -->
     <g>
-      <path d="M84 92 C78 62 84 44 92 34 C106 44 118 56 124 70 Z" fill="#e0cfac" stroke="#57462f" stroke-width="6" stroke-linejoin="round"></path>
-      <path d="M93 74 C91 62 93 54 96 48 C103 54 109 61 112 68 Z" fill="#f0a8a0"></path>
-      <path d="M136 66 C140 38 150 24 160 16 C170 28 178 42 180 58 Z" fill="#e0cfac" stroke="#57462f" stroke-width="6" stroke-linejoin="round"></path>
-      <path d="M148 56 C150 44 154 36 159 30 C164 37 168 45 170 52 Z" fill="#f0a8a0"></path>
+      <path d="M82 92 C74 62 78 44 87 32 C101 42 114 56 120 70 Z" fill="#eae0c2" stroke="#57462f" stroke-width="4.5" stroke-linejoin="round"></path>
+      <path d="M92 64 L96 53 M100 70 L106 60 M96 76 L104 68" stroke="#e8a89f" stroke-width="3" stroke-linecap="round"></path>
+      <path d="M134 64 C136 36 146 22 157 14 C168 26 176 40 178 54 Z" fill="#eae0c2" stroke="#57462f" stroke-width="4.5" stroke-linejoin="round"></path>
+      <path d="M148 52 L152 40 M157 56 L163 45 M143 58 L139 50" stroke="#e8a89f" stroke-width="3" stroke-linecap="round"></path>
     </g>
 
-    <!-- body + head as one loaf -->
+    <!-- head + body in one relaxed mass -->
     <path
-      d="M42 172
-         C36 124 62 78 116 68
-         C154 61 182 76 196 94
-         C222 84 258 88 288 106
-         C316 124 326 156 320 184
+      d="M40 176
+         C34 128 60 82 114 72
+         C152 65 180 80 194 98
+         C222 88 258 92 288 110
+         C316 128 326 158 320 186
          C314 212 288 226 252 228
-         L94 228
-         C62 226 46 202 42 172 Z"
-      fill="#e0cfac" stroke="#57462f" stroke-width="6" stroke-linejoin="round"
+         L96 228
+         C64 226 44 202 40 176 Z"
+      fill="#eae0c2" stroke="#57462f" stroke-width="4.5" stroke-linejoin="round"
     ></path>
 
-    <!-- front paws -->
+    <!-- chest / shoulder contour -->
+    <path d="M184 116 C192 146 190 180 176 210" stroke="#57462f" stroke-width="3.2" stroke-linecap="round" opacity="0.55"></path>
+
+    <!-- forelegs stretched forward -->
     <g>
-      <path d="M74 228 C74 208 90 200 104 200 C118 200 130 208 130 228 Z" fill="#e6d6b4" stroke="#57462f" stroke-width="5.5" stroke-linejoin="round"></path>
-      <path d="M124 228 C124 210 138 203 150 203 C162 203 172 211 172 228 Z" fill="#e6d6b4" stroke="#57462f" stroke-width="5.5" stroke-linejoin="round"></path>
-      <path d="M96 214 L96 226 M112 212 L112 226 M142 216 L142 227 M156 215 L156 227" stroke="#57462f" stroke-width="4" stroke-linecap="round"></path>
+      <path
+        d="M138 204 C100 198 62 200 46 208 C36 212 36 222 46 226 C58 230 126 230 138 228 Z"
+        fill="#eae0c2" stroke="#57462f" stroke-width="4" stroke-linejoin="round"
+      ></path>
+      <path
+        d="M150 230 C150 218 144 211 130 209 C148 210 160 216 160 223 C160 228 156 230 150 230 Z"
+        fill="#dbc9a6" stroke="#57462f" stroke-width="3.5" stroke-linejoin="round"
+      ></path>
+      <path d="M54 210 L54 224 M66 208 L66 226" stroke="#57462f" stroke-width="3" stroke-linecap="round"></path>
     </g>
 
     <!-- face -->
     <g>
-      <!-- happy closed eyes -->
-      <path class="anim-blink" d="M74 132 Q86 120 98 132" stroke="#57462f" stroke-width="6" stroke-linecap="round"></path>
-      <path class="anim-blink" d="M132 130 Q144 118 156 130" stroke="#57462f" stroke-width="6" stroke-linecap="round"></path>
-      <!-- nose + mouth -->
-      <path d="M110 146 L122 146 L116 154 Z" fill="#57462f" stroke="#57462f" stroke-width="3" stroke-linejoin="round"></path>
-      <path d="M100 158 Q108 166 116 158 Q124 166 132 158" stroke="#57462f" stroke-width="4.5" stroke-linecap="round" fill="none"></path>
-      <!-- blush -->
-      <ellipse cx="66" cy="150" rx="11" ry="6.5" fill="#f0a8a0" opacity="0.9"></ellipse>
-      <ellipse cx="164" cy="148" rx="11" ry="6.5" fill="#f0a8a0" opacity="0.9"></ellipse>
-      <!-- whiskers -->
-      <path d="M52 138 L18 132 M52 148 L14 148 M52 158 L18 164" stroke="#57462f" stroke-width="3.5" stroke-linecap="round"></path>
-      <path d="M176 136 L208 130 M178 146 L212 146" stroke="#57462f" stroke-width="3.5" stroke-linecap="round"></path>
+      <!-- serene closed eyes -->
+      <path class="anim-blink" d="M72 124 Q84 132 96 124" stroke="#57462f" stroke-width="4.5" stroke-linecap="round"></path>
+      <path class="anim-blink" d="M130 122 Q142 130 154 122" stroke="#57462f" stroke-width="4.5" stroke-linecap="round"></path>
+      <!-- tiny nose + soft mouth -->
+      <path d="M112 142 L120 142 L116 147 Z" fill="#57462f" stroke="#57462f" stroke-width="2" stroke-linejoin="round"></path>
+      <path d="M108 152 Q116 157 124 152" stroke="#57462f" stroke-width="3.2" stroke-linecap="round" fill="none"></path>
+      <!-- soft blush -->
+      <ellipse cx="66" cy="144" rx="10" ry="6" fill="#e8a89f" opacity="0.65"></ellipse>
+      <ellipse cx="162" cy="142" rx="10" ry="6" fill="#e8a89f" opacity="0.65"></ellipse>
+      <!-- fine whiskers -->
+      <path d="M52 134 L22 128 M52 143 L18 143 M52 152 L22 158" stroke="#57462f" stroke-width="2.4" stroke-linecap="round"></path>
+      <path d="M174 132 L204 126 M176 141 L208 141" stroke="#57462f" stroke-width="2.4" stroke-linecap="round"></path>
     </g>
   </g>
 </svg>

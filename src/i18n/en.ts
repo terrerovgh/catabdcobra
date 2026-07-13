@@ -34,8 +34,8 @@ export const en = {
     aboutTitle: 'Soft on the outside, sharp underneath',
     aboutBody:
       'Cat & Cobra is a safe, friendly home for cool, fun and nerdy tattoos — fantasy, anime, neo-traditional, pop culture, black & gray and horror. One studio, two spirits: the comfort of the cat and the edge of the cobra.',
-    stylesTitle: 'Pick your poison',
-    stylesSub: 'Swipe through the styles we love to ink',
+    stylesTitle: 'Styles we master',
+    stylesSub: 'Swipe through the work we specialize in',
     artistsTitle: 'Five artists, five universes',
     artistsSub: 'Every artist is their own world. Find yours.',
     meetArtists: 'Meet the artists',
@@ -114,7 +114,7 @@ export const en = {
       'Fluid buildup under the wrap — plasma, ink, a little blood — looks alarming and is completely normal.',
     wrapWarning:
       'Allergic to adhesives? If you see severe redness or swelling around the edges, remove the wrap immediately and switch to the traditional protocol.',
-    warningsTitle: 'The cobra says no',
+    warningsTitle: 'What to avoid',
     warnings: [
       { title: 'Standing water', body: 'No pools, lakes, rivers or hot tubs until fully healed.' },
       { title: 'Pet hair', body: 'Keep fresh ink away from your (adorable) furry roommates.' },

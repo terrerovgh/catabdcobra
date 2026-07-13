@@ -36,8 +36,8 @@ export const es: Dict = {
     aboutTitle: 'Suave por fuera, filo por dentro',
     aboutBody:
       'Cat & Cobra es un refugio seguro y amigable para tatuajes geniales, divertidos y nerds: fantasía, anime, neotradicional, cultura pop, negro y gris, y horror. Un estudio, dos espíritus: la calma del gato y el filo de la cobra.',
-    stylesTitle: 'Elige tu veneno',
-    stylesSub: 'Desliza por los estilos que amamos tatuar',
+    stylesTitle: 'Estilos que dominamos',
+    stylesSub: 'Desliza por el trabajo en el que nos especializamos',
     artistsTitle: 'Cinco artistas, cinco universos',
     artistsSub: 'Cada artista es un mundo propio. Encuentra el tuyo.',
     meetArtists: 'Conoce a los artistas',
@@ -116,7 +116,7 @@ export const es: Dict = {
       'La acumulación de fluido bajo el vendaje — plasma, tinta, un poco de sangre — se ve alarmante y es completamente normal.',
     wrapWarning:
       '¿Alergia a los adhesivos? Si ves enrojecimiento severo o inflamación en los bordes, retira el vendaje de inmediato y cambia al protocolo tradicional.',
-    warningsTitle: 'La cobra dice no',
+    warningsTitle: 'Qué evitar',
     warnings: [
       { title: 'Agua estancada', body: 'Nada de piscinas, lagos, ríos ni jacuzzis hasta sanar por completo.' },
       { title: 'Pelo de mascota', body: 'Mantén la tinta fresca lejos de tus (adorables) compañeros peludos.' },

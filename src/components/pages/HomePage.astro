@@ -1,6 +1,6 @@
 ---
 import AppLayout from '../../layouts/AppLayout.astro';
-import HeroScene from '../HeroScene.astro';
+import LogoScene from '../LogoScene.astro';
 import SwipeDeck from '../SwipeDeck.astro';
 import StyleCard from '../StyleCard.astro';
 import Cat from '../characters/Cat.astro';
@@ -15,18 +15,18 @@ const { locale } = Astro.props;
 const t = useDict(locale);
 ---
 
-<AppLayout locale={locale}>
-  <!-- hero -->
+<AppLayout locale={locale} brandInHero>
+  <!-- hero: the animated logo -->
   <section class="snap-section px-6 pt-4 text-center">
-    <HeroScene />
-    <h1 class="mt-2 font-display text-4xl font-semibold tracking-tight">{t.home.heroTitle}</h1>
-    <p class="mt-1 font-display text-sm font-medium tracking-[0.2em] text-accent-strong uppercase">
+    <LogoScene />
+    <h1 class="font-brand mt-2 text-4xl font-semibold">{t.home.heroTitle}</h1>
+    <p class="mt-2 font-display text-xs font-bold tracking-[0.22em] text-accent-strong uppercase">
       {t.home.tagline}
     </p>
     <p class="mt-2 text-sm text-ink-soft">{t.home.heroSub}</p>
     <a
       href={localePath(locale, '/booking')}
-      class="mt-6 inline-block rounded-full bg-accent px-8 py-3 font-display font-semibold text-charcoal shadow-(--shadow-float) transition-transform active:scale-95"
+      class="mt-6 inline-block rounded-full bg-accent px-8 py-3 font-display font-semibold text-charcoal shadow-(--shadow-float) transition-transform active:scale-[0.98]"
     >
       {t.common.bookNow}
     </a>
@@ -66,7 +66,7 @@ const t = useDict(locale);
         artists.map((artist) => (
           <a
             href={`${localePath(locale, '/artists')}#${artist.id}`}
-            class="flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-bold transition-transform active:scale-95"
+            class="flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-bold transition-transform active:scale-[0.98]"
           >
             <span class="h-2.5 w-2.5 rounded-full" style={`background:${artist.accent}`} aria-hidden="true" />
             {artist.handle}
@@ -76,9 +76,9 @@ const t = useDict(locale);
     </div>
     <a
       href={localePath(locale, '/artists')}
-      class="mt-5 inline-block rounded-full border-2 border-accent px-6 py-2.5 font-display text-sm font-semibold text-accent-strong transition-transform active:scale-95"
+      class="mt-5 inline-block rounded-full border border-accent px-6 py-2.5 font-display text-sm font-semibold text-accent-strong transition-transform active:scale-[0.98]"
     >
-      {t.home.meetArtists} →
+      {t.home.meetArtists}
     </a>
   </section>
 
@@ -110,7 +110,7 @@ const t = useDict(locale);
         <p class="mt-2 text-sm font-medium opacity-80">{t.home.ctaBody}</p>
         <a
           href={localePath(locale, '/booking')}
-          class="mt-4 inline-block rounded-full bg-charcoal px-6 py-2.5 font-display text-sm font-semibold text-cream transition-transform active:scale-95"
+          class="mt-4 inline-block rounded-full bg-charcoal px-6 py-2.5 font-display text-sm font-semibold text-cream transition-transform active:scale-[0.98]"
         >
           {t.common.bookNow}
         </a>

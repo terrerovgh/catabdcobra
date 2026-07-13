@@ -48,8 +48,12 @@ const t = useDict(locale);
       <p class="mt-5 rounded-2xl border border-line bg-surface p-4 text-sm leading-relaxed text-ink-soft">
         {t.aftercare.wrapNote}
       </p>
-      <p class="mt-3 rounded-2xl border-2 border-accent-strong/60 bg-surface p-4 text-sm leading-relaxed font-medium">
-        ⚠️ {t.aftercare.wrapWarning}
+      <p class="mt-3 flex gap-3 rounded-2xl border border-accent-strong/60 bg-surface p-4 text-sm leading-relaxed font-medium">
+        <svg viewBox="0 0 24 24" class="mt-0.5 h-5 w-5 shrink-0 text-accent-strong" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 4 L21 19 H3 Z"></path>
+          <path d="M12 10 V14.2 M12 16.6 V16.8"></path>
+        </svg>
+        <span>{t.aftercare.wrapWarning}</span>
       </p>
     </div>
 

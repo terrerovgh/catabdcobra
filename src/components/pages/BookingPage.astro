@@ -78,7 +78,13 @@ const mailto = (subject: string) => `mailto:${studioEmail}?subject=${encodeURICo
 
     <!-- deposit -->
     <div class="mt-10 rounded-(--radius-card) bg-accent p-6 text-charcoal shadow-(--shadow-float)">
-      <h2 class="font-display text-xl font-semibold">💵 {t.booking.depositTitle}</h2>
+      <h2 class="flex items-center gap-2 font-display text-xl font-semibold">
+        <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M14.8 9.2 C14.3 8.3 13.2 7.8 12 7.8 C10.4 7.8 9.2 8.7 9.2 10 C9.2 12.8 15 11.4 15 14 C15 15.3 13.7 16.2 12 16.2 C10.6 16.2 9.5 15.6 9 14.7 M12 6.2 V7.8 M12 16.2 V17.8"></path>
+        </svg>
+        {t.booking.depositTitle}
+      </h2>
       <p class="mt-2 text-sm leading-relaxed font-medium opacity-85">{t.booking.depositBody}</p>
     </div>
 
@@ -87,17 +93,26 @@ const mailto = (subject: string) => `mailto:${studioEmail}?subject=${encodeURICo
     <div class="mt-4 flex gap-3">
       <a
         href={mailto('Tattoo inquiry')}
-        class="flex-1 rounded-full bg-accent py-3 text-center font-display text-sm font-semibold text-charcoal transition-transform active:scale-95"
+        class="flex flex-1 items-center justify-center gap-2 rounded-full bg-accent py-3 font-display text-sm font-semibold text-charcoal transition-transform active:scale-[0.98]"
       >
-        ✉️ {t.booking.emailLabel}
+        <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3.5" y="5.5" width="17" height="13" rx="2.5"></rect>
+          <path d="M4.5 7.5 L12 12.5 L19.5 7.5"></path>
+        </svg>
+        {t.booking.emailLabel}
       </a>
       <a
         href="https://instagram.com/catandcobra"
         target="_blank"
         rel="noopener"
-        class="flex-1 rounded-full border-2 border-accent py-3 text-center font-display text-sm font-semibold text-accent-strong transition-transform active:scale-95"
+        class="flex flex-1 items-center justify-center gap-2 rounded-full border border-accent py-3 font-display text-sm font-semibold text-accent-strong transition-transform active:scale-[0.98]"
       >
-        📷 {t.booking.instagramLabel}
+        <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="4" y="4" width="16" height="16" rx="4.5"></rect>
+          <circle cx="12" cy="12" r="3.6"></circle>
+          <circle cx="16.8" cy="7.2" r="0.9" fill="currentColor" stroke="none"></circle>
+        </svg>
+        {t.booking.instagramLabel}
       </a>
     </div>
 

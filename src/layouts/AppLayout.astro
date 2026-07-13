@@ -4,14 +4,17 @@ import { localePath, useDict, type Locale } from '../i18n';
 import TabBar from '../components/TabBar.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import LangToggle from '../components/LangToggle.astro';
+import BrandMark from '../components/BrandMark.astro';
 import '../styles/global.css';
 
 interface Props {
   locale: Locale;
   title?: string;
   description?: string;
+  /** Home passes true: the hero logo owns the "brand" view-transition name there. */
+  brandInHero?: boolean;
 }
-const { locale, title, description } = Astro.props;
+const { locale, title, description, brandInHero = false } = Astro.props;
 const t = useDict(locale);
 const pageTitle = title ? `${title} · Cat & Cobra` : t.meta.title;
 const pageDescription = description ?? t.meta.description;
@@ -65,15 +68,18 @@ const pageDescription = description ?? t.meta.description;
     >
       <div class="mx-auto flex h-14 max-w-md items-center justify-between px-4">
         <a href={localePath(locale, '/')} class="flex items-center gap-2.5">
-          <!-- mini logo mark -->
-          <svg viewBox="0 0 48 48" class="h-9 w-9" aria-hidden="true">
-            <circle cx="24" cy="24" r="23" fill="#f0e7c9"></circle>
-            <circle cx="24" cy="24" r="16" fill="#e8987c"></circle>
-            <path d="M30 12 C34 12 36 16 35.5 20 C35 23.5 33 25.5 30 26 C27 25.5 25 23.5 24.5 20 C24 16 26 12 30 12 Z" fill="#87a794" stroke="#57462f" stroke-width="1.6"></path>
-            <path d="M12 30 C12 24 15 20 19 19.4 L21 22 H25 L27 19.4 C31 20 34 24 34 30 C34 34.5 30 37 23 37 C16 37 12 34.5 12 30 Z" fill="#e0cfac" stroke="#57462f" stroke-width="1.6"></path>
-            <path d="M18.5 28 Q20 26.6 21.5 28 M24.5 28 Q26 26.6 27.5 28" stroke="#57462f" stroke-width="1.5" fill="none" stroke-linecap="round"></path>
-          </svg>
-          <span class="font-display text-lg font-semibold tracking-tight">Cat & Cobra</span>
+          {
+            brandInHero ? (
+              <div class="h-9 w-9">
+                <BrandMark />
+              </div>
+            ) : (
+              <div class="h-9 w-9" transition:name="brand">
+                <BrandMark />
+              </div>
+            )
+          }
+          <span class="font-brand text-lg font-semibold">Cat & Cobra</span>
         </a>
         <div class="flex items-center gap-2">
           <LangToggle locale={locale} />
