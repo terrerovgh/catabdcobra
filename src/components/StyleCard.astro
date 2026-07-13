@@ -1,0 +1,33 @@
+---
+import type { Style } from '../data/styles';
+import type { Locale } from '../i18n';
+import Cat from './characters/Cat.astro';
+import Cobra from './characters/Cobra.astro';
+
+interface Props {
+  style: Style;
+  locale: Locale;
+}
+const { style, locale } = Astro.props;
+const isCat = style.mood === 'cat';
+---
+
+<article
+  class:list={[
+    'swipe-card relative w-60 overflow-hidden rounded-(--radius-card) border border-line p-5 shadow-(--shadow-card)',
+    isCat ? 'bg-surface' : 'bg-charcoal text-cream',
+  ]}
+>
+  <div
+    class:list={[
+      'relative mx-auto grid h-28 w-28 place-items-center rounded-full',
+      isCat ? 'bg-accent-soft/50' : 'bg-teal/20',
+    ]}
+  >
+    {isCat ? <Cat class="w-24 translate-y-1" /> : <Cobra class="h-24 -translate-y-1" />}
+  </div>
+  <h3 class="mt-4 font-display text-lg leading-tight font-semibold">{style.name[locale]}</h3>
+  <p class:list={['mt-1 text-sm', isCat ? 'text-ink-soft' : 'text-cream/70']}>
+    {style.desc[locale]}
+  </p>
+</article>

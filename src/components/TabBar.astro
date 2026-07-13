@@ -1,0 +1,89 @@
+---
+import { localePath, useDict, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useDict(locale);
+
+const current = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+const tabs = [
+  { href: localePath(locale, '/'), label: t.nav.home, icon: 'home' },
+  { href: localePath(locale, '/artists'), label: t.nav.artists, icon: 'paw' },
+  { href: localePath(locale, '/gallery'), label: t.nav.gallery, icon: 'gallery' },
+  { href: localePath(locale, '/aftercare'), label: t.nav.aftercare, icon: 'heart' },
+  { href: localePath(locale, '/booking'), label: t.nav.booking, icon: 'calendar' },
+].map((tab) => ({
+  ...tab,
+  active: (tab.href.replace(/\/$/, '') || '/') === current,
+}));
+---
+
+<nav
+  class="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-surface/90 backdrop-blur-md"
+  style="padding-bottom: env(safe-area-inset-bottom)"
+  aria-label="Main"
+  transition:name="tabbar"
+  transition:animate="none"
+>
+  <ul class="mx-auto flex max-w-md items-stretch justify-around">
+    {
+      tabs.map((tab) => (
+        <li class="flex-1">
+          <a
+            href={tab.href}
+            aria-current={tab.active ? 'page' : undefined}
+            class:list={[
+              'flex flex-col items-center gap-0.5 py-2 pt-2.5 text-[0.65rem] font-bold transition-colors duration-200',
+              tab.active ? 'text-accent-strong' : 'text-ink-soft hover:text-ink',
+            ]}
+          >
+            <span
+              class:list={[
+                'grid h-7 w-12 place-items-center rounded-full transition-all duration-300',
+                tab.active ? 'bg-accent/25 scale-105' : 'scale-100',
+              ]}
+            >
+              {tab.icon === 'home' && (
+                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 11 L12 4 L20 11 V20 H14.5 V15 H9.5 V20 H4 Z" />
+                </svg>
+              )}
+              {tab.icon === 'paw' && (
+                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <ellipse cx="12" cy="15.5" rx="4.6" ry="3.8" />
+                  <circle cx="6.2" cy="10.5" r="1.7" />
+                  <circle cx="10" cy="7.5" r="1.7" />
+                  <circle cx="14" cy="7.5" r="1.7" />
+                  <circle cx="17.8" cy="10.5" r="1.7" />
+                </svg>
+              )}
+              {tab.icon === 'gallery' && (
+                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" />
+                  <circle cx="9" cy="10" r="1.6" />
+                  <path d="M4.5 17.5 L10 12.5 L14 16 L16.5 13.5 L19.5 16.5" />
+                </svg>
+              )}
+              {tab.icon === 'heart' && (
+                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 20 C6 15.5 3.5 12 3.5 8.8 C3.5 6.2 5.5 4.5 7.8 4.5 C9.5 4.5 11 5.4 12 7 C13 5.4 14.5 4.5 16.2 4.5 C18.5 4.5 20.5 6.2 20.5 8.8 C20.5 12 18 15.5 12 20 Z" />
+                </svg>
+              )}
+              {tab.icon === 'calendar' && (
+                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3.5" y="5.5" width="17" height="15" rx="2.5" />
+                  <path d="M3.5 10 H20.5 M8 3.5 V7 M16 3.5 V7" />
+                  <path d="M8.5 14.5 L11 17 L15.5 12.8" />
+                </svg>
+              )}
+            </span>
+            {tab.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>

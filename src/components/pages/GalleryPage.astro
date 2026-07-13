@@ -1,0 +1,21 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import GalleryGrid from '../GalleryGrid.astro';
+import { useDict, type Locale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useDict(locale);
+---
+
+<AppLayout locale={locale} title={t.gallery.title}>
+  <section class="pt-6">
+    <div class="px-6 pb-4">
+      <h1 class="font-display text-3xl font-semibold">{t.gallery.title}</h1>
+      <p class="mt-1 text-sm text-ink-soft">{t.gallery.sub}</p>
+    </div>
+    <GalleryGrid locale={locale} />
+  </section>
+</AppLayout>

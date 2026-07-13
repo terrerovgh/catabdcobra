@@ -1,0 +1,72 @@
+---
+/**
+ * The Cat — hand-built layered SVG recreated from the studio logo.
+ * Layers (body, ears, face, paws, tail) animate independently:
+ * breathing body, blinking happy-eyes, flicking tail.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<svg
+  class={`cat-svg ${className}`}
+  viewBox="0 0 340 250"
+  fill="none"
+  aria-hidden="true"
+  role="img"
+>
+  <g class="anim-breathe">
+    <!-- tail curled along the front -->
+    <path
+      class="anim-tail"
+      d="M296 186 C330 194 336 222 306 232 C270 244 216 240 186 234 C178 232 178 222 187 221 C224 226 268 228 292 220 C312 213 308 196 288 194 Z"
+      fill="#d8c6a0" stroke="#57462f" stroke-width="6" stroke-linejoin="round"
+    ></path>
+
+    <!-- ears -->
+    <g>
+      <path d="M84 92 C78 62 84 44 92 34 C106 44 118 56 124 70 Z" fill="#e0cfac" stroke="#57462f" stroke-width="6" stroke-linejoin="round"></path>
+      <path d="M93 74 C91 62 93 54 96 48 C103 54 109 61 112 68 Z" fill="#f0a8a0"></path>
+      <path d="M136 66 C140 38 150 24 160 16 C170 28 178 42 180 58 Z" fill="#e0cfac" stroke="#57462f" stroke-width="6" stroke-linejoin="round"></path>
+      <path d="M148 56 C150 44 154 36 159 30 C164 37 168 45 170 52 Z" fill="#f0a8a0"></path>
+    </g>
+
+    <!-- body + head as one loaf -->
+    <path
+      d="M42 172
+         C36 124 62 78 116 68
+         C154 61 182 76 196 94
+         C222 84 258 88 288 106
+         C316 124 326 156 320 184
+         C314 212 288 226 252 228
+         L94 228
+         C62 226 46 202 42 172 Z"
+      fill="#e0cfac" stroke="#57462f" stroke-width="6" stroke-linejoin="round"
+    ></path>
+
+    <!-- front paws -->
+    <g>
+      <path d="M74 228 C74 208 90 200 104 200 C118 200 130 208 130 228 Z" fill="#e6d6b4" stroke="#57462f" stroke-width="5.5" stroke-linejoin="round"></path>
+      <path d="M124 228 C124 210 138 203 150 203 C162 203 172 211 172 228 Z" fill="#e6d6b4" stroke="#57462f" stroke-width="5.5" stroke-linejoin="round"></path>
+      <path d="M96 214 L96 226 M112 212 L112 226 M142 216 L142 227 M156 215 L156 227" stroke="#57462f" stroke-width="4" stroke-linecap="round"></path>
+    </g>
+
+    <!-- face -->
+    <g>
+      <!-- happy closed eyes -->
+      <path class="anim-blink" d="M74 132 Q86 120 98 132" stroke="#57462f" stroke-width="6" stroke-linecap="round"></path>
+      <path class="anim-blink" d="M132 130 Q144 118 156 130" stroke="#57462f" stroke-width="6" stroke-linecap="round"></path>
+      <!-- nose + mouth -->
+      <path d="M110 146 L122 146 L116 154 Z" fill="#57462f" stroke="#57462f" stroke-width="3" stroke-linejoin="round"></path>
+      <path d="M100 158 Q108 166 116 158 Q124 166 132 158" stroke="#57462f" stroke-width="4.5" stroke-linecap="round" fill="none"></path>
+      <!-- blush -->
+      <ellipse cx="66" cy="150" rx="11" ry="6.5" fill="#f0a8a0" opacity="0.9"></ellipse>
+      <ellipse cx="164" cy="148" rx="11" ry="6.5" fill="#f0a8a0" opacity="0.9"></ellipse>
+      <!-- whiskers -->
+      <path d="M52 138 L18 132 M52 148 L14 148 M52 158 L18 164" stroke="#57462f" stroke-width="3.5" stroke-linecap="round"></path>
+      <path d="M176 136 L208 130 M178 146 L212 146" stroke="#57462f" stroke-width="3.5" stroke-linecap="round"></path>
+    </g>
+  </g>
+</svg>

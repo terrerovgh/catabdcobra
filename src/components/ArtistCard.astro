@@ -1,0 +1,76 @@
+---
+import type { Artist } from '../data/artists';
+import { getStyle } from '../data/styles';
+import { localePath, useDict, type Locale } from '../i18n';
+import Cat from './characters/Cat.astro';
+import Cobra from './characters/Cobra.astro';
+
+interface Props {
+  artist: Artist;
+  locale: Locale;
+  id?: string;
+}
+const { artist, locale, id } = Astro.props;
+const t = useDict(locale);
+const styleNames = artist.styles
+  .map((id) => getStyle(id)?.name[locale])
+  .filter(Boolean) as string[];
+---
+
+<article
+  id={id}
+  class="swipe-card relative flex w-72 flex-col overflow-hidden rounded-(--radius-card) border border-line bg-surface p-6 shadow-(--shadow-card)"
+>
+  <!-- accent halo + mascot avatar -->
+  <div class="relative mx-auto grid h-32 w-32 place-items-center">
+    <span
+      class="absolute inset-0 rounded-full opacity-30"
+      style={`background:${artist.accent}`}
+      aria-hidden="true"></span>
+    <span
+      class="absolute inset-2 rounded-full opacity-40"
+      style={`background:${artist.accent}`}
+      aria-hidden="true"></span>
+    {
+      artist.mood === 'cat' ? (
+        <Cat class="relative w-28 translate-y-1.5" />
+      ) : (
+        <Cobra class="relative h-28" />
+      )
+    }
+  </div>
+
+  <h3 class="mt-4 text-center font-display text-xl font-semibold">{artist.handle}</h3>
+  <p class="text-center text-xs font-bold tracking-widest text-ink-soft uppercase">
+    {artist.role === 'owner' ? t.artists.owner : t.artists.resident}
+  </p>
+
+  <div class="mt-3 flex flex-wrap justify-center gap-1.5">
+    {
+      styleNames.map((name) => (
+        <span class="rounded-full border border-line bg-surface-2 px-2.5 py-0.5 text-xs font-semibold">
+          {name}
+        </span>
+      ))
+    }
+  </div>
+
+  <p class="mt-3 grow text-sm leading-relaxed text-ink-soft">{artist.bio[locale]}</p>
+
+  <div class="mt-5 flex gap-2">
+    <a
+      href={artist.instagram}
+      target="_blank"
+      rel="noopener"
+      class="flex-1 rounded-full border border-line py-2.5 text-center text-sm font-bold transition-colors hover:bg-surface-2"
+    >
+      {t.common.follow}
+    </a>
+    <a
+      href={`${localePath(locale, '/booking')}#${artist.id}`}
+      class="flex-1 rounded-full bg-accent py-2.5 text-center text-sm font-bold text-charcoal transition-colors hover:bg-accent-strong"
+    >
+      {t.nav.booking}
+    </a>
+  </div>
+</article>

@@ -1,0 +1,99 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import { localePath, useDict, type Locale } from '../i18n';
+import TabBar from '../components/TabBar.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import LangToggle from '../components/LangToggle.astro';
+import '../styles/global.css';
+
+interface Props {
+  locale: Locale;
+  title?: string;
+  description?: string;
+}
+const { locale, title, description } = Astro.props;
+const t = useDict(locale);
+const pageTitle = title ? `${title} · Cat & Cobra` : t.meta.title;
+const pageDescription = description ?? t.meta.description;
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f0e7c9" />
+    <meta name="description" content={pageDescription} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <title>{pageTitle}</title>
+    <ClientRouter />
+    <script is:inline>
+      (() => {
+        const colors = { cat: '#f0e7c9', cobra: '#26231f' };
+        const apply = () => {
+          const saved = localStorage.getItem('cc-theme');
+          const theme =
+            saved === 'cat' || saved === 'cobra'
+              ? saved
+              : matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'cobra'
+                : 'cat';
+          document.documentElement.dataset.theme = theme;
+          const meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', colors[theme]);
+        };
+        apply();
+        document.addEventListener('astro:after-swap', apply);
+        document.addEventListener('click', (event) => {
+          const btn = event.target && event.target.closest && event.target.closest('[data-theme-toggle]');
+          if (!btn) return;
+          const next = document.documentElement.dataset.theme === 'cobra' ? 'cat' : 'cobra';
+          localStorage.setItem('cc-theme', next);
+          apply();
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <header
+      class="fixed inset-x-0 top-0 z-50 border-b border-line bg-bg/85 backdrop-blur-md"
+      style="padding-top: env(safe-area-inset-top)"
+    >
+      <div class="mx-auto flex h-14 max-w-md items-center justify-between px-4">
+        <a href={localePath(locale, '/')} class="flex items-center gap-2.5">
+          <!-- mini logo mark -->
+          <svg viewBox="0 0 48 48" class="h-9 w-9" aria-hidden="true">
+            <circle cx="24" cy="24" r="23" fill="#f0e7c9"></circle>
+            <circle cx="24" cy="24" r="16" fill="#e8987c"></circle>
+            <path d="M30 12 C34 12 36 16 35.5 20 C35 23.5 33 25.5 30 26 C27 25.5 25 23.5 24.5 20 C24 16 26 12 30 12 Z" fill="#87a794" stroke="#57462f" stroke-width="1.6"></path>
+            <path d="M12 30 C12 24 15 20 19 19.4 L21 22 H25 L27 19.4 C31 20 34 24 34 30 C34 34.5 30 37 23 37 C16 37 12 34.5 12 30 Z" fill="#e0cfac" stroke="#57462f" stroke-width="1.6"></path>
+            <path d="M18.5 28 Q20 26.6 21.5 28 M24.5 28 Q26 26.6 27.5 28" stroke="#57462f" stroke-width="1.5" fill="none" stroke-linecap="round"></path>
+          </svg>
+          <span class="font-display text-lg font-semibold tracking-tight">Cat & Cobra</span>
+        </a>
+        <div class="flex items-center gap-2">
+          <LangToggle locale={locale} />
+          <ThemeToggle locale={locale} />
+        </div>
+      </div>
+    </header>
+
+    <main
+      class="mx-auto min-h-dvh max-w-md"
+      style="padding-top: calc(3.5rem + env(safe-area-inset-top)); padding-bottom: calc(5rem + env(safe-area-inset-bottom))"
+    >
+      <slot />
+    </main>
+
+    <footer class="mx-auto max-w-md px-6 pb-28 pt-4 text-center text-xs text-ink-soft">
+      <p class="font-display font-semibold">{t.footer.tagline}</p>
+      <p class="mt-1">{t.footer.address}</p>
+    </footer>
+
+    <TabBar locale={locale} />
+  </body>
+</html>

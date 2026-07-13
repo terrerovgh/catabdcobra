@@ -1,0 +1,69 @@
+---
+/**
+ * The Cobra — hand-built layered SVG recreated from the studio logo.
+ * The hood + head sway from the coil; the tongue flicks on a timer.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<svg
+  class={`cobra-svg ${className}`}
+  viewBox="0 0 230 340"
+  fill="none"
+  aria-hidden="true"
+  role="img"
+>
+  <!-- coiled base (static anchor) -->
+  <ellipse cx="115" cy="284" rx="80" ry="30" fill="#87a794" stroke="#57462f" stroke-width="6"></ellipse>
+  <ellipse cx="115" cy="300" rx="62" ry="25" fill="#93b3a0" stroke="#57462f" stroke-width="6"></ellipse>
+  <path d="M84 296 Q115 306 146 296" stroke="#57462f" stroke-width="4" stroke-linecap="round"></path>
+
+  <g class="anim-sway">
+    <!-- neck: gentle S-curve down into the coil -->
+    <path d="M115 166 C130 196 94 222 104 252 C108 264 112 270 115 276" stroke="#57462f" stroke-width="40" stroke-linecap="round"></path>
+    <path d="M115 166 C130 196 94 222 104 252 C108 264 112 270 115 276" stroke="#87a794" stroke-width="29" stroke-linecap="round"></path>
+
+    <!-- hood -->
+    <path
+      d="M114 26
+         C160 30 184 72 178 118
+         C173 154 148 176 114 180
+         C80 176 55 154 50 118
+         C44 72 68 30 114 26 Z"
+      fill="#87a794" stroke="#57462f" stroke-width="6" stroke-linejoin="round"
+    ></path>
+
+    <!-- belly scales down the hood -->
+    <g fill="#f0e7c9" stroke="#57462f" stroke-width="4.5" stroke-linejoin="round">
+      <rect x="90" y="64" width="48" height="15" rx="7.5"></rect>
+      <rect x="92" y="84" width="44" height="15" rx="7.5"></rect>
+      <rect x="94" y="104" width="40" height="15" rx="7.5"></rect>
+      <rect x="96" y="124" width="36" height="15" rx="7.5"></rect>
+      <rect x="99" y="144" width="30" height="14" rx="7"></rect>
+    </g>
+
+    <!-- head tipping forward -->
+    <g>
+      <path
+        d="M64 44
+           C60 24 80 10 106 10
+           C132 10 150 22 150 40
+           C150 52 140 60 122 60
+           C100 60 76 56 64 44 Z"
+        fill="#6d9181" stroke="#57462f" stroke-width="6" stroke-linejoin="round"
+      ></path>
+      <!-- eye + glint -->
+      <circle cx="84" cy="34" r="5.5" fill="#26231f"></circle>
+      <circle cx="86" cy="32" r="1.8" fill="#f0e7c9"></circle>
+      <!-- mouth -->
+      <path d="M66 44 Q74 49 86 49" stroke="#57462f" stroke-width="3.5" stroke-linecap="round"></path>
+      <!-- forked tongue -->
+      <g class="anim-tongue">
+        <path d="M64 46 L44 48 M44 48 L34 42 M44 48 L36 56" stroke="#cf7051" stroke-width="4" stroke-linecap="round"></path>
+      </g>
+    </g>
+  </g>
+</svg>

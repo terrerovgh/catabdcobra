@@ -1,0 +1,214 @@
+---
+import { Image } from 'astro:assets';
+import { gallery } from '../data/gallery';
+import { artists } from '../data/artists';
+import { styles, getStyle } from '../data/styles';
+import { useDict, type Locale } from '../i18n';
+import Cat from './characters/Cat.astro';
+import Cobra from './characters/Cobra.astro';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useDict(locale);
+
+/* Illustrated placeholders keep the grid (and filters) alive until real
+   photos land in src/assets/gallery/ — one per style, round-robin artists. */
+const placeholders =
+  gallery.length > 0
+    ? []
+    : styles.map((style, i) => ({
+        style,
+        artist: artists.find((a) => a.styles.includes(style.id)) ?? artists[i % artists.length]!,
+      }));
+---
+
+<div data-gallery>
+  <!-- style filter chips -->
+  <div class="swipe-deck !gap-2 !px-5 pb-2" role="group" aria-label={t.gallery.filterStyle}>
+    <button type="button" class="chip active" data-filter-style="all">{t.gallery.all}</button>
+    {
+      styles.map((s) => (
+        <button type="button" class="chip" data-filter-style={s.id}>
+          {s.name[locale]}
+        </button>
+      ))
+    }
+  </div>
+
+  <!-- artist filter chips -->
+  <div class="swipe-deck !gap-2 !px-5 pb-4" role="group" aria-label={t.gallery.filterArtist}>
+    <button type="button" class="chip active" data-filter-artist="all">{t.gallery.all}</button>
+    {
+      artists.map((a) => (
+        <button type="button" class="chip" data-filter-artist={a.id}>
+          {a.handle}
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 px-5">
+    {
+      gallery.map((piece) => {
+        const img = piece.fresh ?? piece.healed!;
+        const both = piece.fresh && piece.healed;
+        const artist = artists.find((a) => a.id === piece.artist);
+        return (
+          <figure
+            class="gallery-card overflow-hidden rounded-2xl border border-line bg-surface shadow-(--shadow-card)"
+            data-style={piece.style}
+            data-artist={piece.artist}
+          >
+            <div class="relative aspect-square">
+              {piece.fresh && (
+                <Image
+                  src={piece.fresh}
+                  alt={`${getStyle(piece.style)?.name[locale] ?? piece.style} — ${artist?.handle ?? piece.artist}`}
+                  width={640}
+                  class="variant-fresh absolute inset-0 h-full w-full object-cover"
+                />
+              )}
+              {piece.healed && (
+                <Image
+                  src={piece.healed}
+                  alt={`${getStyle(piece.style)?.name[locale] ?? piece.style} (${t.gallery.healed}) — ${artist?.handle ?? piece.artist}`}
+                  width={640}
+                  class:list={[
+                    'variant-healed absolute inset-0 h-full w-full object-cover',
+                    piece.fresh && 'hidden',
+                  ]}
+                />
+              )}
+              {both && (
+                <div class="absolute right-2 bottom-2 left-2 flex rounded-full border border-line bg-bg/85 p-0.5 text-[0.65rem] font-bold backdrop-blur-sm">
+                  <button type="button" class="seg active flex-1 rounded-full py-1" data-variant="fresh">
+                    {t.gallery.fresh}
+                  </button>
+                  <button type="button" class="seg flex-1 rounded-full py-1" data-variant="healed">
+                    {t.gallery.healed}
+                  </button>
+                </div>
+              )}
+            </div>
+            <figcaption class="flex items-center justify-between gap-1 p-2.5 text-xs">
+              <span class="font-display font-semibold">
+                {getStyle(piece.style)?.name[locale] ?? piece.style}
+              </span>
+              <span class="text-ink-soft">{artist?.handle ?? piece.artist}</span>
+            </figcaption>
+          </figure>
+        );
+      })
+    }
+
+    {
+      placeholders.map(({ style, artist }) => (
+        <figure
+          class="gallery-card overflow-hidden rounded-2xl border border-line bg-surface shadow-(--shadow-card)"
+          data-style={style.id}
+          data-artist={artist.id}
+        >
+          <div
+            class:list={[
+              'relative grid aspect-square place-items-center',
+              style.mood === 'cat' ? 'bg-accent-soft/40' : 'bg-charcoal/90',
+            ]}
+            role="img"
+            aria-label={t.gallery.placeholderAlt}
+          >
+            {style.mood === 'cat' ? <Cat class="w-24 opacity-80" /> : <Cobra class="h-24 opacity-80" />}
+            <span class="absolute top-2 right-2 rounded-full bg-bg/85 px-2 py-0.5 text-[0.6rem] font-bold tracking-wide uppercase backdrop-blur-sm">
+              {t.common.comingSoon}
+            </span>
+          </div>
+          <figcaption class="flex items-center justify-between gap-1 p-2.5 text-xs">
+            <span class="font-display font-semibold">{style.name[locale]}</span>
+            <span class="text-ink-soft">{artist.handle}</span>
+          </figcaption>
+        </figure>
+      ))
+    }
+  </div>
+
+  <p data-gallery-empty class="mx-5 mt-4 hidden rounded-2xl border border-line bg-surface p-5 text-center text-sm text-ink-soft">
+    <strong class="font-display text-ink">{t.gallery.emptyTitle}</strong>
+    <br />
+    {t.gallery.emptyBody}
+  </p>
+</div>
+
+<style>
+  .chip {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: 999px;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: all 200ms ease;
+  }
+  .chip.active {
+    background: var(--accent);
+    border-color: transparent;
+    color: #26231f;
+  }
+  .seg.active {
+    background: var(--accent);
+    color: #26231f;
+  }
+</style>
+
+<script>
+  function initGallery() {
+    const root = document.querySelector<HTMLElement>('[data-gallery]');
+    if (!root || root.dataset.init) return;
+    root.dataset.init = '1';
+
+    const state = { style: 'all', artist: 'all' };
+
+    const applyFilters = () => {
+      let visible = 0;
+      root.querySelectorAll<HTMLElement>('.gallery-card').forEach((card) => {
+        const show =
+          (state.style === 'all' || card.dataset.style === state.style) &&
+          (state.artist === 'all' || card.dataset.artist === state.artist);
+        card.classList.toggle('hidden', !show);
+        if (show) visible++;
+      });
+      root.querySelector('[data-gallery-empty]')?.classList.toggle('hidden', visible > 0);
+    };
+
+    root.addEventListener('click', (event) => {
+      const el = event.target as HTMLElement;
+
+      const styleChip = el.closest<HTMLElement>('[data-filter-style]');
+      const artistChip = el.closest<HTMLElement>('[data-filter-artist]');
+      if (styleChip || artistChip) {
+        const chip = (styleChip ?? artistChip)!;
+        const key = styleChip ? 'style' : 'artist';
+        const attr = styleChip ? 'data-filter-style' : 'data-filter-artist';
+        state[key as 'style' | 'artist'] = chip.getAttribute(attr)!;
+        chip.parentElement
+          ?.querySelectorAll('.chip')
+          .forEach((c) => c.classList.toggle('active', c === chip));
+        applyFilters();
+        return;
+      }
+
+      const seg = el.closest<HTMLElement>('.seg[data-variant]');
+      if (seg) {
+        const card = seg.closest<HTMLElement>('.gallery-card');
+        if (!card) return;
+        const variant = seg.dataset.variant;
+        card.querySelector('.variant-fresh')?.classList.toggle('hidden', variant !== 'fresh');
+        card.querySelector('.variant-healed')?.classList.toggle('hidden', variant !== 'healed');
+        card.querySelectorAll('.seg').forEach((s) => s.classList.toggle('active', s === seg));
+      }
+    });
+  }
+  document.addEventListener('astro:page-load', initGallery);
+</script>

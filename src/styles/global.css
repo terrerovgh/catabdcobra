@@ -1,0 +1,281 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/fredoka';
+@import '@fontsource-variable/nunito';
+
+/*
+  Cat & Cobra design system — palette sampled from the studio logo:
+  cream disc, sand cat, peach circle, sage-teal cobra, ink-brown linework.
+  Two moods: "cat" (light) and "cobra" (dark), switched via data-theme on <html>.
+*/
+
+:root,
+:root[data-theme='cat'] {
+  --bg: #f0e7c9;
+  --bg-soft: #e9dcb6;
+  --surface: #f7f0da;
+  --surface-2: #e4d5ae;
+  --text: #57462f;
+  --text-soft: #7d6a4e;
+  --accent: #e08a6c;
+  --accent-strong: #cf7051;
+  --accent-soft: #f2b39d;
+  --duo: #87a794;
+  --duo-strong: #5f8271;
+  --blush: #f0a8a0;
+  --line: rgb(87 70 47 / 0.18);
+  --shadow: rgb(87 70 47 / 0.22);
+  --halo: #e8987c;
+  --scene-disc: #e8987c;
+  color-scheme: light;
+}
+
+:root[data-theme='cobra'] {
+  --bg: #26231f;
+  --bg-soft: #2d2a24;
+  --surface: #33302a;
+  --surface-2: #3d3931;
+  --text: #f0e7c9;
+  --text-soft: #c2b493;
+  --accent: #87a794;
+  --accent-strong: #9dbcaa;
+  --accent-soft: #55766a;
+  --duo: #e8987c;
+  --duo-strong: #f2b39d;
+  --blush: #c97e76;
+  --line: rgb(240 231 201 / 0.16);
+  --shadow: rgb(0 0 0 / 0.45);
+  --halo: #55766a;
+  --scene-disc: #3a4a42;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-soft: var(--bg-soft);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--text);
+  --color-ink-soft: var(--text-soft);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-duo: var(--duo);
+  --color-duo-strong: var(--duo-strong);
+  --color-blush: var(--blush);
+  --color-line: var(--line);
+
+  --color-cream: #f0e7c9;
+  --color-sand: #e0cfac;
+  --color-peach: #e8987c;
+  --color-teal: #87a794;
+  --color-brown: #57462f;
+  --color-charcoal: #26231f;
+
+  --font-display: 'Fredoka Variable', ui-rounded, system-ui, sans-serif;
+  --font-body: 'Nunito Variable', system-ui, sans-serif;
+
+  --shadow-card: 0 10px 30px -12px var(--shadow), 0 2px 8px -4px var(--shadow);
+  --shadow-float: 0 24px 50px -20px var(--shadow);
+
+  --radius-card: 1.5rem;
+}
+
+html {
+  background-color: var(--bg);
+  scrollbar-width: thin;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--text);
+  background-color: var(--bg);
+  overflow-x: hidden;
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+}
+
+/* App feel: no rubber-band white flash, no text-select on UI chrome */
+button,
+a.chip,
+nav {
+  user-select: none;
+}
+
+/* --- Horizontal swipe decks --------------------------------------- */
+.swipe-deck {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-inline: max(1.25rem, calc((100vw - 26rem) / 2));
+  scroll-padding-inline: max(1.25rem, calc((100vw - 26rem) / 2));
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.swipe-deck::-webkit-scrollbar {
+  display: none;
+}
+.swipe-card {
+  scroll-snap-align: center;
+  flex: 0 0 auto;
+}
+
+/* Depth: center card pops, edges recede (scroll-driven when supported) */
+@supports (animation-timeline: view()) {
+  .swipe-deck[data-depth] .swipe-card {
+    animation: deck-depth linear both;
+    animation-timeline: view(x);
+    animation-range: cover;
+  }
+  @keyframes deck-depth {
+    0% {
+      transform: scale(0.88) translateY(10px);
+      opacity: 0.65;
+    }
+    50% {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(0.88) translateY(10px);
+      opacity: 0.65;
+    }
+  }
+}
+
+/* --- View transitions: app-like slide between pages ---------------- */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 180ms ease both vt-out;
+  }
+  ::view-transition-new(root) {
+    animation: 220ms ease both vt-in;
+  }
+  @keyframes vt-out {
+    to {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.99);
+    }
+  }
+  @keyframes vt-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.99);
+    }
+  }
+}
+
+/* --- Motion hygiene ------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- Shared micro-animations for the characters -------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .anim-breathe {
+    animation: breathe 4.5s ease-in-out infinite;
+    transform-origin: 50% 100%;
+  }
+  .anim-sway {
+    animation: sway 5s ease-in-out infinite;
+    transform-origin: 50% 100%;
+  }
+  .anim-blink {
+    animation: blink 6s infinite;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+  .anim-float {
+    animation: floaty 6s ease-in-out infinite;
+  }
+  .anim-tail {
+    animation: tailflick 7s ease-in-out infinite;
+    transform-origin: 20% 80%;
+    transform-box: fill-box;
+  }
+  .anim-tongue {
+    animation: tongue 6.5s infinite;
+    transform-origin: left center;
+    transform-box: fill-box;
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.025);
+  }
+}
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-3.5deg);
+  }
+  50% {
+    transform: rotate(3.5deg);
+  }
+}
+@keyframes blink {
+  0%,
+  93%,
+  100% {
+    transform: scaleY(1);
+  }
+  95%,
+  97% {
+    transform: scaleY(0.08);
+  }
+}
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes tailflick {
+  0%,
+  84%,
+  100% {
+    transform: rotate(0deg);
+  }
+  90% {
+    transform: rotate(-6deg);
+  }
+  95% {
+    transform: rotate(3deg);
+  }
+}
+@keyframes tongue {
+  0%,
+  88%,
+  100% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  91%,
+  96% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
