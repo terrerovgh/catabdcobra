@@ -9,3 +9,7 @@ binding = "ASSETS"
 [[routes]]
 pattern = "terrerov.com/catandcobra*"
 zone_name = "terrerov.com"
+
+[[routes]]
+pattern = "www.terrerov.com/catandcobra*"
+zone_name = "terrerov.com"
