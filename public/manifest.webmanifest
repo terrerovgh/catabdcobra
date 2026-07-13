@@ -2,13 +2,14 @@
   "name": "Cat & Cobra Tattoo Studio",
   "short_name": "Cat & Cobra",
   "description": "Custom tattoo studio in Albuquerque, NM. Passion. Art. Precision.",
-  "start_url": "/",
+  "start_url": "/catandcobra/",
+  "scope": "/catandcobra/",
   "display": "standalone",
   "background_color": "#f0e7c9",
   "theme_color": "#f0e7c9",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/catandcobra/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
