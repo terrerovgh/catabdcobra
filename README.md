@@ -52,19 +52,30 @@ fresh ⇄ healed toggle when both variants exist. See
 - Styles: `src/data/styles.ts`
 - UI copy (EN/ES): `src/i18n/en.ts`, `src/i18n/es.ts`
 
-## Deploying to Cloudflare Pages
+## Deploying to Cloudflare Workers
 
-The site builds to static files in `dist/`, ready for Cloudflare Pages.
+The site is served at `terrerov.com/catandcobra` (not its own subdomain),
+alongside whatever else already runs on that zone. It's deployed as its
+own Cloudflare Worker with static assets:
 
-1. In the Cloudflare dashboard, go to **Workers & Pages → Create → Pages →
-   Connect to Git** and pick this repo.
-2. Build settings: framework preset **Astro**, build command `npm run
-   build`, build output directory `dist`.
-3. After the first deploy, go to the project's **Custom domains** tab and
-   add `catandcobra.terrerov.com` (requires `terrerov.com` to be an active
-   zone on the same Cloudflare account).
+- `astro.config.mjs` sets `base: '/catandcobra'` so all generated links
+  and asset URLs carry the prefix.
+- `src/worker/index.ts` strips the `/catandcobra` prefix before serving
+  from the `dist/` assets binding, since the build output itself isn't
+  nested under that path.
+- `wrangler.toml` declares the Worker (assets directory `dist`) and a
+  route `terrerov.com/catandcobra*` on the `terrerov.com` zone. Cloudflare
+  matches the most specific route on a zone, so this coexists with
+  whatever Worker currently serves the rest of `terrerov.com` — no need
+  to touch it.
 
-Alternatively, `.github/workflows/deploy.yml` deploys automatically on
-push to `main` via `wrangler pages deploy` — add the
-`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repo secrets (Pages
-Edit permission) for it to run.
+To deploy:
+
+```sh
+npm run build
+npx wrangler deploy   # requires a Cloudflare API token with Workers Scripts + Zone edit
+```
+
+`.github/workflows/deploy.yml` runs the same on every push to `main` —
+add the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repo secrets
+for it to run.
