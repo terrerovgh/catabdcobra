@@ -1,0 +1,15 @@
+name = "cat-and-cobra"
+main = "./src/worker/index.ts"
+compatibility_date = "2026-07-13"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+
+[[routes]]
+pattern = "terrerov.com/catandcobra*"
+zone_name = "terrerov.com"
+
+[[routes]]
+pattern = "www.terrerov.com/catandcobra*"
+zone_name = "terrerov.com"

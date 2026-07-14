@@ -18,6 +18,7 @@ const { locale, title, description, brandInHero = false } = Astro.props;
 const t = useDict(locale);
 const pageTitle = title ? `${title} · Cat & Cobra` : t.meta.title;
 const pageDescription = description ?? t.meta.description;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <!doctype html>
@@ -30,9 +31,9 @@ const pageDescription = description ?? t.meta.description;
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={pageDescription} />
     <meta property="og:type" content="website" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/png" href={`${base}/favicon.png`} />
+    <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} />
+    <link rel="manifest" href={`${base}/manifest.webmanifest`} />
     <title>{pageTitle}</title>
     <ClientRouter />
     <script is:inline>

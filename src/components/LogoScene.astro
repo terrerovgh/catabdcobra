@@ -13,6 +13,7 @@
  * apart on scroll, and morphs into the header brand mark via view
  * transitions. Layer nesting: scroll-driven ▸ parallax ▸ assemble ▸ sway.
  */
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <div
@@ -27,7 +28,7 @@
     <div class="parallax h-full w-full" style="--depth: 6px">
       <img
         class="anim-bloom h-full w-full drop-shadow-lg"
-        src="/logo/logo-base.webp"
+        src={`${base}/logo/logo-base.webp`}
         width="779"
         height="779"
         alt=""
@@ -45,7 +46,7 @@
         <div class="cobra-sway h-full w-full">
           <img
             class="h-full w-full"
-            src="/logo/logo-cobra.webp"
+            src={`${base}/logo/logo-cobra.webp`}
             width="779"
             height="779"
             alt=""
@@ -63,7 +64,7 @@
     <div class="parallax h-full w-full" style="--depth: 6px">
       <img
         class="anim-bloom h-full w-full"
-        src="/logo/logo-coil.webp"
+        src={`${base}/logo/logo-coil.webp`}
         width="779"
         height="779"
         alt=""

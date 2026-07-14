@@ -5,10 +5,11 @@ interface Props {
   class?: string;
 }
 const { class: className = 'h-9 w-9' } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <img
-  src="/logo/logo-mark.webp"
+  src={`${base}/logo/logo-mark.webp`}
   class={className}
   width="192"
   height="192"

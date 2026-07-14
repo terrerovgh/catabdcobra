@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
+  base: '/catandcobra',
   i18n: {
     locales: ['en', 'es'],
     defaultLocale: 'en',
