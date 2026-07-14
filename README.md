@@ -101,7 +101,7 @@ npm run deploy             # wrangler deploy (build first)
 
 | Email | Role |
 |-------|------|
-| `admin@terrerov.com` | system_admin |
+| `terrerov@gmail.com` | system_admin |
 | `owner@catandcobra.com` | owner → doomkitten |
 | `flyingsnail@catandcobra.com` | artist |
 | `nolandvoid@catandcobra.com` | artist |

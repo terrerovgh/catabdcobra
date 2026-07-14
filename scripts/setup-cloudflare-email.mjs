@@ -69,12 +69,18 @@ if (testTo) {
   console.log(send.out.trim());
   if (send.code !== 0) {
     console.log(`
-If you see email.sending_disabled (10203) or Unauthorized (2036):
-  1. Open https://dash.cloudflare.com/${ACCOUNT}/email-service/sending
-  2. Click "Onboard Domain" → select ${DOMAIN}
-  3. Wait for DNS (SPF/DKIM/DMARC on cf-bounce.*) — usually 5–15 minutes
-  4. Re-run: node scripts/setup-cloudflare-email.mjs --test-to ${testTo}
+If send fails:
+  • Unauthorized (2036) / sending_disabled (10203):
+      1. Open https://dash.cloudflare.com/${ACCOUNT}/email-service/sending
+      2. Click "Onboard Domain" → select ${DOMAIN}
+      3. Wait for DNS (SPF/DKIM/DMARC on cf-bounce.*) — usually 5–15 minutes
+  • "destination address is not a verified address":
+      Add the recipient under Email Routing → Destination addresses and verify it.
+      (Beta accounts can only deliver to verified destinations.)
+  • Then re-run: node scripts/setup-cloudflare-email.mjs --test-to ${testTo}
 `);
+  } else {
+    console.log(`\n✓ Test mail accepted for delivery → ${testTo}`);
   }
 } else {
   console.log(`
