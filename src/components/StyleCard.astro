@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import type { Style } from '../data/styles';
+import { gallery } from '../data/gallery';
 import type { Locale } from '../i18n';
 import Cat from './characters/Cat.astro';
 import Cobra from './characters/Cobra.astro';
@@ -10,24 +12,48 @@ interface Props {
 }
 const { style, locale } = Astro.props;
 const isCat = style.mood === 'cat';
+const piece = gallery.find((p) => p.key === style.exampleKey);
+const example = piece?.fresh ?? piece?.healed;
+const alt = `${style.name[locale]} tattoo example`;
 ---
 
 <article
   class:list={[
-    'swipe-card relative w-60 overflow-hidden rounded-(--radius-card) border border-line p-5 shadow-(--shadow-card)',
+    'swipe-card relative w-60 overflow-hidden rounded-(--radius-card) border border-line shadow-(--shadow-card)',
     isCat ? 'bg-surface' : 'bg-charcoal text-cream',
   ]}
 >
   <div
     class:list={[
-      'relative mx-auto grid h-28 w-28 place-items-center rounded-full',
-      isCat ? 'bg-accent-soft/50' : 'bg-teal/20',
+      'relative aspect-square w-full overflow-hidden',
+      isCat ? 'bg-accent-soft/40' : 'bg-teal/15',
     ]}
   >
-    {isCat ? <Cat class="w-24 translate-y-1" /> : <Cobra class="h-24 -translate-y-1" />}
+    {
+      example ? (
+        <Image
+          src={example}
+          alt={alt}
+          width={480}
+          height={480}
+          class="h-full w-full object-cover"
+          loading="lazy"
+        />
+      ) : isCat ? (
+        <div class="grid h-full w-full place-items-center">
+          <Cat class="w-28 translate-y-1" />
+        </div>
+      ) : (
+        <div class="grid h-full w-full place-items-center">
+          <Cobra class="h-28 -translate-y-1" />
+        </div>
+      )
+    }
   </div>
-  <h3 class="mt-4 font-display text-lg leading-tight font-semibold">{style.name[locale]}</h3>
-  <p class:list={['mt-1 text-sm', isCat ? 'text-ink-soft' : 'text-cream/70']}>
-    {style.desc[locale]}
-  </p>
+  <div class="p-5">
+    <h3 class="font-display text-lg leading-tight font-semibold">{style.name[locale]}</h3>
+    <p class:list={['mt-1 text-sm', isCat ? 'text-ink-soft' : 'text-cream/70']}>
+      {style.desc[locale]}
+    </p>
+  </div>
 </article>
