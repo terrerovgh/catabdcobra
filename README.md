@@ -30,11 +30,25 @@ horror/blackwork side. Both are hand-built layered SVGs animated with CSS.
 |-------|------|
 | Public site | [Astro 5](https://astro.build) + [Tailwind CSS 4](https://tailwindcss.com) |
 | Admin SPA | React (mounted from Astro) at `/catandcobra/admin/` |
-| API | Cloudflare Worker + [Hono](https://hono.dev) |
-| Data | Cloudflare **D1** (SQLite) |
-| Uploads | Cloudflare **R2** |
-| OTP email | Cloudflare **Email Sending** (`send_email` binding) |
-| Deploy | `wrangler` → `terrerov.com/catandcobra*` |
+| Runtime | **Cloudflare Workers** + Static Assets (**not** Pages) |
+| API | Worker script + [Hono](https://hono.dev) under `/catandcobra/api/*` |
+| Data | Cloudflare **D1** (`cat-and-cobra`) |
+| Uploads | Cloudflare **R2** (`cat-and-cobra-media`) |
+| OTP email | Cloudflare **Email Sending** (`EMAIL` binding) |
+| Config | `wrangler.jsonc` |
+| Deploy | Workers Builds (Git-connected) + optional GitHub Actions |
+
+### Why Workers, not Pages?
+
+This app needs a single process that:
+
+1. Serves the static Astro build from `dist/`
+2. Runs authenticated API routes with D1 + R2
+3. Strips the `/catandcobra` path prefix on `terrerov.com`
+
+That is **Workers + Static Assets** (`assets.directory` + `run_worker_first`).  
+Cloudflare **Pages** is the wrong product here (no dual API Worker under the same
+path without extra complexity). Do **not** create a Pages project for this repo.
 
 ## Quick start
 
@@ -87,7 +101,7 @@ npm run deploy             # wrangler deploy (build first)
 
 | Email | Role |
 |-------|------|
-| `admin@terrerov.com` | system_admin |
+| `terrerov@gmail.com` | system_admin |
 | `owner@catandcobra.com` | owner → doomkitten |
 | `flyingsnail@catandcobra.com` | artist |
 | `nolandvoid@catandcobra.com` | artist |
@@ -132,17 +146,31 @@ until published.
 
 ### First-time Cloudflare setup
 
+Deploy fails with **D1 binding error 10181** if `database_id` in `wrangler.toml`
+is still the local placeholder (`00000000-0000-0000-0000-000000000001`).
+
 ```sh
+# Authenticate (or set CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID)
+npx wrangler login
+
 # Create D1 + R2 (once per account)
 npx wrangler d1 create cat-and-cobra
-# paste database_id into wrangler.toml → d1_databases.database_id
+# → copy database_id into wrangler.toml [[d1_databases]]
+
 npx wrangler r2 bucket create cat-and-cobra-media
 
 # Enable transactional email from your zone
 npx wrangler email sending enable terrerov.com
 
-npm run db:migrate:local   # or --remote for production DB
+npm run db:migrate:local
+npx wrangler d1 migrations apply cat-and-cobra --remote
 ```
+
+Or run the GitHub Action **“Provision Cloudflare (D1 + R2)”** (`workflow_dispatch`)
+if `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repo secrets are set; then
+paste the printed `database_id` into `wrangler.toml` and push.
+
+Worker name in config is **`catabdcobra`** (matches Cloudflare Workers Builds).
 
 ## Adding gallery photos (archive)
 
@@ -194,22 +222,73 @@ src/components/GalleryGrid.astro   # public gallery (API-driven)
 - Styles / designs: `src/data/styles.ts`, `src/data/designs.ts`
 - UI copy (EN/ES): `src/i18n/en.ts`, `src/i18n/es.ts`
 
+## Cloudflare production map
+
+| Resource | Name / value |
+|----------|----------------|
+| Worker | `catabdcobra` |
+| Account | `1ddbfa86148b21137f5125cbdd637e8c` |
+| Routes | `terrerov.com/catandcobra*`, `www.terrerov.com/catandcobra*` |
+| D1 | `cat-and-cobra` → `35c2d2b0-4e08-4565-b4b2-7031b2901f70` |
+| R2 | `cat-and-cobra-media` |
+| Email binding | `EMAIL` (unrestricted send; onboard `terrerov.com` in Email Sending) |
+| Observability | enabled in `wrangler.jsonc` |
+
+### Email Sending (OTP)
+
+Worker binding: `EMAIL` (`send_email` in `wrangler.jsonc`).  
+From: `noreply@terrerov.com`.
+
+**Status on this account (checked via API):**
+
+| Piece | Status |
+|-------|--------|
+| Email **Routing** (inbound MX/SPF/DKIM) | Enabled for `terrerov.com` |
+| Destination `terrerov@gmail.com` | Verified |
+| Email **Sending** (outbound) | **Disabled** (`email.sending_disabled` / 10203) until onboarded |
+
+**Enable outbound (one-time, Dashboard):**
+
+1. Open [Email Sending](https://dash.cloudflare.com/1ddbfa86148b21137f5125cbdd637e8c/email-service/sending)
+2. **Onboard Domain** → `terrerov.com` (adds `cf-bounce` SPF/DKIM/MX + DMARC)
+3. Wait 5–15 minutes for DNS
+4. Test:
+   ```sh
+   npm run cf:email:setup
+   node scripts/setup-cloudflare-email.mjs --test-to terrerov@gmail.com
+   ```
+
+Until Sending is onboarded, OTP codes are written to **Workers Logs**
+(`[otp-fallback]`) so login still works.
+
 ## Deploying to Cloudflare Workers
 
-Served at **`terrerov.com/catandcobra`** as its own Worker (coexists with the
-rest of the zone via specific routes).
+Served at **`terrerov.com/catandcobra`** as Worker `catabdcobra` (coexists with
+other zone routes via path patterns).
 
 ```sh
-npm run build
-npm run db:migrate:remote    # after schema changes
-npx wrangler deploy
+# Local CLI auth (OAuth). Must NOT have CLOUDFLARE_API_TOKEN set in .env or shell:
+#   unset CLOUDFLARE_API_TOKEN
+#   # or rename it in .env — wrangler loads .env and blocks login otherwise
+npx wrangler login
+npx wrangler whoami
+
+npm run deploy                 # build + wrangler deploy
+npm run db:migrate:remote      # after schema changes
+npx wrangler types             # refresh worker-configuration.d.ts
 ```
+
+**`wrangler login` fails with**  
+`You are logged in with an API Token. Unset the CLOUDFLARE_API_TOKEN...`  
+→ remove/rename `CLOUDFLARE_API_TOKEN` from the project `.env` (or `unset` it),
+then run login again. Keep API tokens only in **GitHub Actions secrets**, not `.env`.
 
 - `base: '/catandcobra'` in `astro.config.mjs`
 - Worker strips prefix, serves `/api/*` via Hono, assets from `dist/`
-- Bindings: `DB` (D1), `MEDIA` (R2), `EMAIL`, `ASSETS`
-- CI: `.github/workflows/deploy.yml` on `main` needs
-  `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`
+- **Primary CI:** Cloudflare Workers Builds (build: `npm run build`, deploy: `npx wrangler deploy`)
+- **Optional CI:** `.github/workflows/deploy.yml` needs repo secrets
+  `CLOUDFLARE_API_TOKEN` (Workers Scripts + D1 + R2 + Account Read) and
+  `CLOUDFLARE_ACCOUNT_ID`
 
 ### Public API (no auth)
 

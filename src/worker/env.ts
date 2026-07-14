@@ -1,23 +1,4 @@
-export interface Env {
-  ASSETS: { fetch(request: Request): Promise<Response> };
-  DB: D1Database;
-  MEDIA: R2Bucket;
-  EMAIL: {
-    send(message: {
-      to: string | string[];
-      from: string | { email: string; name?: string };
-      subject: string;
-      html?: string;
-      text?: string;
-      replyTo?: string;
-    }): Promise<{ messageId?: string }>;
-  };
-  SESSION_TTL_DAYS: string;
-  OTP_TTL_MINUTES: string;
-  EMAIL_FROM: string;
-  EMAIL_FROM_NAME: string;
-  ENVIRONMENT: string;
-}
+/** App-level types. Binding `Env` comes from `worker-configuration.d.ts` (`wrangler types`). */
 
 export type Role = 'system_admin' | 'owner' | 'artist';
 
@@ -29,3 +10,6 @@ export interface AuthUser {
   artist_id: string | null;
   active: number;
 }
+
+/** Alias of the generated Cloudflare Env interface for module imports. */
+export type Env = Cloudflare.Env;

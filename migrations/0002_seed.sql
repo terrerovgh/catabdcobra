@@ -71,7 +71,7 @@ INSERT OR IGNORE INTO users (
   id, email, name, role, artist_id, active, created_at, updated_at
 ) VALUES (
   'user_system_admin',
-  'admin@terrerov.com',
+  'terrerov@gmail.com',
   'System Admin',
   'system_admin',
   NULL,
