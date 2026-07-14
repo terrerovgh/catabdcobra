@@ -1,7 +1,9 @@
-name = "cat-and-cobra"
+# Worker name must match Cloudflare connected project (Workers Builds).
+name = "catabdcobra"
 main = "./src/worker/index.ts"
 compatibility_date = "2026-07-13"
 compatibility_flags = ["nodejs_compat"]
+account_id = "1ddbfa86148b21137f5125cbdd637e8c"
 
 [assets]
 directory = "./dist"
@@ -20,7 +22,10 @@ zone_name = "terrerov.com"
 [[d1_databases]]
 binding = "DB"
 database_name = "cat-and-cobra"
-# Replace with real ID after: npx wrangler d1 create cat-and-cobra
+# Real UUID required for deploy — set after:
+#   npx wrangler d1 create cat-and-cobra
+# or GitHub Action: "Provision Cloudflare (D1 + R2)"
+# PLACEHOLDER breaks production deploy (error 10181).
 database_id = "00000000-0000-0000-0000-000000000001"
 migrations_dir = "migrations"
 
