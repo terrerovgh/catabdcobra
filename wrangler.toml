@@ -26,7 +26,7 @@ database_name = "cat-and-cobra"
 #   npx wrangler d1 create cat-and-cobra
 # or GitHub Action: "Provision Cloudflare (D1 + R2)"
 # PLACEHOLDER breaks production deploy (error 10181).
-database_id = "00000000-0000-0000-0000-000000000001"
+database_id = "35c2d2b0-4e08-4565-b4b2-7031b2901f70"
 migrations_dir = "migrations"
 
 [[r2_buckets]]
