@@ -6,10 +6,19 @@ export interface Style {
   id: string;
   name: Record<Locale, string>;
   desc: Record<Locale, string>;
-  /** Which mascot fronts this style card. */
+  /** Which mascot fronts this style card (fallback / accent palette). */
   mood: Mood;
+  /**
+   * Gallery piece key used as the tattoo example on home style cards.
+   * Format: artistId__styleId__slug (matches gallery.ts keys).
+   */
+  exampleKey: string;
 }
 
+/**
+ * Curated close-up tattoo examples for each style card.
+ * Chosen for clear style representation (real ink on skin).
+ */
 export const styles: Style[] = [
   {
     id: 'anime',
@@ -19,6 +28,8 @@ export const styles: Style[] = [
       es: 'Tus personajes favoritos, tatuados con el cariño que merecen.',
     },
     mood: 'cat',
+    // Gengar bubble-tea cartoon piece
+    exampleKey: 'doomkitten__anime__character-dycubitkezd',
   },
   {
     id: 'neo-traditional',
@@ -28,6 +39,8 @@ export const styles: Style[] = [
       es: 'Líneas audaces, paletas ricas, folclore moderno.',
     },
     mood: 'cat',
+    // Portrait + birds — bold linework & rich color (classic neo-trad feel)
+    exampleKey: 'doomkitten__fantasy__animal-dyif6ekamgc',
   },
   {
     id: 'pop-culture',
@@ -37,6 +50,8 @@ export const styles: Style[] = [
       es: 'Videojuegos, cine, cómics: lleva puesto lo que amas.',
     },
     mood: 'cat',
+    // Gundam mecha helmet on hand
+    exampleKey: 'deeziebeezie__neo-traditional__flash-dsmg5iwdwgn',
   },
   {
     id: 'fantasy',
@@ -46,6 +61,8 @@ export const styles: Style[] = [
       es: 'Dragones, hadas y mundos que nunca existieron.',
     },
     mood: 'cat',
+    // Fantasy serpent / creature flash
+    exampleKey: 'flyingsnail__fantasy__character-dixhnozvrhf',
   },
   {
     id: 'black-gray',
@@ -55,6 +72,8 @@ export const styles: Style[] = [
       es: 'Humo, textura y contraste que se mantiene legible por décadas.',
     },
     mood: 'cobra',
+    // Full-back winged black & gray piece
+    exampleKey: 'doomkitten__horror__sleeve-drixghnejfi',
   },
   {
     id: 'horror',
@@ -64,6 +83,8 @@ export const styles: Style[] = [
       es: 'Pesadillas hermosas en tinta permanente.',
     },
     mood: 'cobra',
+    // Decaying unicorn skull — clear horror subject
+    exampleKey: 'doomkitten__horror__occult-img-5281-e432bf1b',
   },
   {
     id: 'realism',
@@ -73,6 +94,8 @@ export const styles: Style[] = [
       es: 'Retratos y detalle que se sienten vivos.',
     },
     mood: 'cobra',
+    // Large-scale back piece with realistic face rendering
+    exampleKey: 'doomkitten__horror__occult-dzks-enhcmu-1',
   },
 ];
 
