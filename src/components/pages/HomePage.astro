@@ -58,7 +58,7 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
       <h2 class="font-display text-2xl font-semibold">{t.home.stylesTitle}</h2>
       <p class="mt-1 text-sm text-ink-soft">{t.home.stylesSub}</p>
     </div>
-    <SwipeDeck class="mt-2">
+    <SwipeDeck class="mt-2" autoplay duration={40}>
       {styles.map((style) => <StyleCard style={style} locale={locale} />)}
     </SwipeDeck>
   </section>

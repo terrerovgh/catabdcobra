@@ -2,19 +2,47 @@
 /**
  * Horizontal snap-scrolling card deck with page dots.
  * Cards go in the slot with class="swipe-card".
+ *
+ * When `autoplay` is set, cards marquee continuously and loop forever.
+ * Autoplay pauses on hover/focus/touch and when the deck is off-screen.
+ * Respects prefers-reduced-motion (falls back to manual swipe).
  */
 interface Props {
   class?: string;
   depth?: boolean;
+  /** Continuous infinite marquee. */
+  autoplay?: boolean;
+  /** Full-loop duration in seconds (autoplay only). Default 36. */
+  duration?: number;
 }
-const { class: className = '', depth = true } = Astro.props;
+const {
+  class: className = '',
+  depth = true,
+  autoplay = false,
+  duration = 36,
+} = Astro.props;
 ---
 
-<div class={`swipe-deck-wrap ${className}`} data-swipe-deck>
-  <div class="swipe-deck py-4" data-depth={depth ? '' : undefined}>
-    <slot />
+<div
+  class={`swipe-deck-wrap ${className}`}
+  data-swipe-deck
+  data-autoplay={autoplay ? '' : undefined}
+  data-duration={autoplay ? String(duration) : undefined}
+>
+  <div
+    class="swipe-deck py-4"
+    data-depth={depth && !autoplay ? '' : undefined}
+    data-autoplay-deck={autoplay ? '' : undefined}
+  >
+    <div class="swipe-deck-track">
+      <slot />
+    </div>
   </div>
-  <div class="deck-dots flex justify-center gap-1.5 pt-1" aria-hidden="true"></div>
+  {
+    !autoplay && (
+      <div class="deck-dots flex justify-center gap-1.5 pt-1" aria-hidden="true"></div>
+    )
+  }
 </div>
 
 <style>
@@ -29,52 +57,220 @@ const { class: className = '', depth = true } = Astro.props;
     width: 1.1rem;
     background: var(--accent);
   }
+
+  /* Default: track is transparent so cards remain flex children of .swipe-deck */
+  .swipe-deck-track {
+    display: contents;
+  }
+
+  /* Continuous infinite marquee */
+  .swipe-deck[data-autoplay-deck] {
+    overflow: hidden;
+    scroll-snap-type: none;
+    padding-inline: 1.25rem;
+  }
+  .swipe-deck[data-autoplay-deck] .swipe-deck-track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
+  .swipe-deck[data-autoplay-deck] .swipe-deck-set {
+    display: flex;
+    gap: 1rem;
+    /* trailing gap so each set period is identical → seamless -50% loop */
+    padding-inline-end: 1rem;
+  }
+  .swipe-deck[data-autoplay-deck].is-ready .swipe-deck-track {
+    animation: swipe-deck-marquee var(--deck-duration, 36s) linear infinite;
+  }
+  .swipe-deck[data-autoplay-deck].is-paused .swipe-deck-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes swipe-deck-marquee {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .swipe-deck[data-autoplay-deck] {
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+    }
+    .swipe-deck[data-autoplay-deck] .swipe-deck-track {
+      animation: none !important;
+      display: contents;
+    }
+    .swipe-deck[data-autoplay-deck] .swipe-deck-set {
+      display: contents;
+    }
+    /* Hide the cloned loop set so manual swipe isn't doubled */
+    .swipe-deck[data-autoplay-deck] .swipe-deck-set[aria-hidden='true'] {
+      display: none;
+    }
+    .swipe-deck[data-autoplay-deck].is-ready .swipe-deck-track {
+      animation: none !important;
+    }
+  }
 </style>
 
 <script>
+  function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
   function initDecks() {
     document.querySelectorAll<HTMLElement>('[data-swipe-deck]').forEach((wrap) => {
       if (wrap.dataset.init) return;
       wrap.dataset.init = '1';
 
       const deck = wrap.querySelector<HTMLElement>('.swipe-deck');
-      const dotsBox = wrap.querySelector<HTMLElement>('.deck-dots');
-      if (!deck || !dotsBox) return;
+      if (!deck) return;
 
-      const cards = [...deck.querySelectorAll<HTMLElement>('.swipe-card')];
-      if (cards.length < 2) return;
+      if (wrap.hasAttribute('data-autoplay')) {
+        initAutoplay(wrap, deck);
+        return;
+      }
 
-      dotsBox.innerHTML = '';
-      const dots = cards.map((_, i) => {
-        const d = document.createElement('span');
-        d.className = 'dot' + (i === 0 ? ' active' : '');
-        dotsBox.appendChild(d);
-        return d;
-      });
-
-      let raf = 0;
-      deck.addEventListener(
-        'scroll',
-        () => {
-          cancelAnimationFrame(raf);
-          raf = requestAnimationFrame(() => {
-            const center = deck.scrollLeft + deck.clientWidth / 2;
-            let best = 0;
-            let bestDist = Infinity;
-            cards.forEach((card, i) => {
-              const cardCenter = card.offsetLeft + card.offsetWidth / 2;
-              const dist = Math.abs(cardCenter - center);
-              if (dist < bestDist) {
-                bestDist = dist;
-                best = i;
-              }
-            });
-            dots.forEach((d, i) => d.classList.toggle('active', i === best));
-          });
-        },
-        { passive: true },
-      );
+      initDots(wrap, deck);
     });
   }
+
+  function initAutoplay(wrap: HTMLElement, deck: HTMLElement) {
+    const track = deck.querySelector<HTMLElement>('.swipe-deck-track');
+    if (!track) return;
+
+    // Cards may already be direct children of the track (first paint)
+    let cards = [...track.querySelectorAll<HTMLElement>(':scope > .swipe-card')];
+    if (!cards.length) {
+      cards = [...track.querySelectorAll<HTMLElement>('.swipe-card')];
+    }
+    if (cards.length < 2) return;
+
+    if (!track.dataset.cloned) {
+      // Group originals into a set, then clone the whole set for seamless loop
+      const setA = document.createElement('div');
+      setA.className = 'swipe-deck-set';
+      cards.forEach((card) => setA.appendChild(card));
+      track.appendChild(setA);
+
+      const setB = setA.cloneNode(true) as HTMLElement;
+      setB.setAttribute('aria-hidden', 'true');
+      setB.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+      setB.querySelectorAll('img').forEach((img) => {
+        img.setAttribute('alt', '');
+        img.setAttribute('loading', 'lazy');
+      });
+      track.appendChild(setB);
+      track.dataset.cloned = '1';
+    }
+
+    const duration = Number(wrap.dataset.duration || '36') || 36;
+    deck.style.setProperty('--deck-duration', `${duration}s`);
+
+    if (prefersReducedMotion()) {
+      deck.classList.remove('is-ready', 'is-paused');
+      return;
+    }
+
+    deck.classList.add('is-ready');
+
+    let pausedByUser = false;
+    let visible = true;
+
+    const syncPause = () => {
+      deck.classList.toggle('is-paused', pausedByUser || !visible);
+    };
+
+    const pause = () => {
+      pausedByUser = true;
+      syncPause();
+    };
+    const resume = () => {
+      pausedByUser = false;
+      syncPause();
+    };
+
+    wrap.addEventListener('pointerenter', pause);
+    wrap.addEventListener('pointerleave', resume);
+    wrap.addEventListener('focusin', pause);
+    wrap.addEventListener('focusout', (e) => {
+      if (!wrap.contains((e as FocusEvent).relatedTarget as Node | null)) resume();
+    });
+
+    let touchResumeTimer = 0;
+    wrap.addEventListener(
+      'touchstart',
+      () => {
+        pause();
+        window.clearTimeout(touchResumeTimer);
+      },
+      { passive: true },
+    );
+    wrap.addEventListener(
+      'touchend',
+      () => {
+        window.clearTimeout(touchResumeTimer);
+        touchResumeTimer = window.setTimeout(resume, 1800);
+      },
+      { passive: true },
+    );
+
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          visible = Boolean(entry?.isIntersecting);
+          syncPause();
+        },
+        { threshold: 0.15 },
+      );
+      io.observe(wrap);
+    }
+  }
+
+  function initDots(wrap: HTMLElement, deck: HTMLElement) {
+    const dotsBox = wrap.querySelector<HTMLElement>('.deck-dots');
+    if (!dotsBox) return;
+
+    const track = deck.querySelector<HTMLElement>('.swipe-deck-track');
+    const cards = [...(track ?? deck).querySelectorAll<HTMLElement>('.swipe-card')];
+    if (cards.length < 2) return;
+
+    dotsBox.innerHTML = '';
+    const dots = cards.map((_, i) => {
+      const d = document.createElement('span');
+      d.className = 'dot' + (i === 0 ? ' active' : '');
+      dotsBox.appendChild(d);
+      return d;
+    });
+
+    let raf = 0;
+    deck.addEventListener(
+      'scroll',
+      () => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          const center = deck.scrollLeft + deck.clientWidth / 2;
+          let best = 0;
+          let bestDist = Infinity;
+          cards.forEach((card, i) => {
+            const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+            const dist = Math.abs(cardCenter - center);
+            if (dist < bestDist) {
+              bestDist = dist;
+              best = i;
+            }
+          });
+          dots.forEach((d, i) => d.classList.toggle('active', i === best));
+        });
+      },
+      { passive: true },
+    );
+  }
+
   document.addEventListener('astro:page-load', initDecks);
 </script>
