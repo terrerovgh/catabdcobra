@@ -1,0 +1,87 @@
+---
+/**
+ * Emblem layer: the lounging cat + its curled tail, traced 1:1 from the
+ * studio logo video (720×720 scene grid shared by all emblem layers).
+ * Serene closed eyes, pink ear strokes, folded-paw contour lines, and the
+ * haunch/tail curl that tucks in front of the cobra's coil. Breathes softly.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<svg class={`emblem-cat ${className}`} viewBox="0 0 720 720" fill="none" aria-hidden="true" role="img">
+  <g transform="translate(2 -55)">
+    <g class="anim-breathe">
+      <!-- ears -->
+      <path d="M178 372 C171 330 184 299 211 288 C229 306 242 330 248 350 Z"
+            fill="#ded0b2" stroke="#6b5334" stroke-width="6" stroke-linejoin="round"></path>
+      <path d="M250 348 C253 314 273 291 299 281 C319 302 334 333 338 360 Z"
+            fill="#ded0b2" stroke="#6b5334" stroke-width="6" stroke-linejoin="round"></path>
+      <g stroke="#eba184" stroke-width="4.5" stroke-linecap="round">
+        <path d="M198 324 L208 302"></path>
+        <path d="M210 336 L224 312"></path>
+        <path d="M222 347 L238 326"></path>
+        <path d="M269 317 L280 294"></path>
+        <path d="M282 329 L296 306"></path>
+        <path d="M294 342 L310 321"></path>
+      </g>
+      <!-- head + body in one relaxed mass (right side tucks under the coil) -->
+      <path d="M144 452
+               C142 414 158 384 182 371
+               C204 360 228 354 250 350
+               C272 346 304 350 338 360
+               C344 381 348 398 350 414
+               C400 445 470 465 525 495
+               C548 530 548 585 528 618
+               C505 640 475 648 450 642
+               C420 648 390 640 370 634
+               C358 630 350 624 346 620
+               C340 626 332 630 324 632
+               C280 648 230 650 186 642
+               C135 632 108 600 112 558
+               L124 530 L112 516 L126 500 L114 480 Z"
+            fill="#ded0b2" stroke="#6b5334" stroke-width="6" stroke-linejoin="round"></path>
+      <!-- face -->
+      <g>
+        <path d="M142 428 Q152 438 164 430" stroke="#4c412e" stroke-width="5" stroke-linecap="round"></path>
+        <path d="M240 450 Q262 466 290 440" stroke="#4c412e" stroke-width="5" stroke-linecap="round"></path>
+        <ellipse cx="155" cy="447" rx="6.5" ry="4.5" fill="#e2836a"></ellipse>
+        <path d="M140 458 Q148 468 157 458 Q165 468 174 458" stroke="#e2836a" stroke-width="4.5" stroke-linecap="round"></path>
+        <ellipse cx="214" cy="456" rx="11" ry="7.5" fill="#ec9d80" opacity="0.9"></ellipse>
+        <g stroke="#6b5334" stroke-width="3.6" stroke-linecap="round">
+          <path d="M245 439 C260 434 274 430 288 429"></path>
+          <path d="M247 452 C263 450 278 449 293 450"></path>
+          <path d="M248 464 C262 467 275 471 287 475"></path>
+          <path d="M312 431 C317 443 320 456 320 467"></path>
+          <path d="M118 432 L92 424"></path>
+          <path d="M116 445 L86 445"></path>
+          <path d="M118 458 L92 466"></path>
+        </g>
+      </g>
+      <!-- folded front legs -->
+      <g stroke="#6b5334" stroke-width="5" stroke-linecap="round">
+        <path d="M172 540 C180 562 190 582 202 597"></path>
+        <path d="M250 543 C234 562 216 582 202 597"></path>
+        <path d="M202 597 C240 620 280 628 320 628"></path>
+      </g>
+      <!-- haunch + curled tail (sits in front of the coil's tip) -->
+      <path d="M500 505
+               C540 515 575 530 592 545
+               C606 562 606 590 596 608
+               C580 634 535 648 480 651
+               C462 652 450 646 447 638
+               C449 622 453 608 462 597
+               C475 570 486 540 488 518
+               C490 508 494 504 500 505 Z"
+            fill="#ded0b2"></path>
+      <path d="M462 597 C453 608 449 622 447 638 C450 646 462 652 480 651 C535 648 580 634 596 608 C606 590 606 562 592 545 C575 530 540 515 500 505"
+            stroke="#6b5334" stroke-width="6" stroke-linecap="round"></path>
+      <path d="M486 602 C524 598 556 584 568 561 C574 546 566 534 550 531"
+            stroke="#6b5334" stroke-width="5" stroke-linecap="round"></path>
+      <path d="M551 556 C557 567 555 579 546 588"
+            stroke="#6b5334" stroke-width="5" stroke-linecap="round"></path>
+    </g>
+  </g>
+</svg>

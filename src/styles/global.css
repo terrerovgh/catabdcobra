@@ -25,7 +25,8 @@
   --line: rgb(87 70 47 / 0.14);
   --shadow: rgb(87 70 47 / 0.18);
   --halo: #e8987c;
-  --scene-disc: #e8987c;
+  --scene-badge: #f7eac8;
+  --scene-disc: #eaa07d;
   color-scheme: light;
 }
 
@@ -45,6 +46,7 @@
   --line: rgb(240 231 201 / 0.16);
   --shadow: rgb(0 0 0 / 0.45);
   --halo: #55766a;
+  --scene-badge: #33302a;
   --scene-disc: #3a4a42;
   color-scheme: dark;
 }
@@ -243,7 +245,7 @@ nav {
     transform: scaleY(1);
   }
   50% {
-    transform: scaleY(1.018);
+    transform: scaleY(1.012);
   }
 }
 @keyframes sway {

@@ -1,0 +1,88 @@
+---
+/**
+ * Emblem layer: the cobra's neck + head, traced 1:1 from the studio logo
+ * video (720×720 scene grid shared by all emblem layers). The whole group
+ * sways like a pendulum from where the neck leaves the coil, and the head
+ * counter-tilts so the motion whips — the exact movement in the logo video.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<svg class={`emblem-cobra ${className}`} viewBox="0 0 720 720" fill="none" aria-hidden="true" role="img">
+  <g transform="translate(2 -55)">
+    <g class="sway">
+      <!-- neck column: ink edge, sage body, cream belly ladder -->
+      <path d="M438 460 C426 408 428 336 444 292 C452 266 460 250 470 238"
+            stroke="#6b5334" stroke-width="76" stroke-linecap="round"></path>
+      <path d="M438 460 C426 408 428 336 444 292 C452 266 460 250 470 238"
+            stroke="#8fa38e" stroke-width="66" stroke-linecap="round"></path>
+      <path d="M427 458 C415 410 416 340 432 296 C440 270 450 252 460 240"
+            stroke="#eee0bd" stroke-width="42" stroke-linecap="round"></path>
+      <g stroke="#6b5334" stroke-width="4" stroke-linecap="round">
+        <path d="M403 436 L446 441"></path>
+        <path d="M399 404 L443 407"></path>
+        <path d="M398 372 L442 373"></path>
+        <path d="M401 340 L445 339"></path>
+        <path d="M407 308 L450 305"></path>
+        <path d="M416 280 L457 274"></path>
+        <path d="M427 256 L465 249"></path>
+      </g>
+      <!-- hooded head drooping left, bead eye -->
+      <g class="head">
+        <path d="M322 214
+                 C314 200 324 186 350 177
+                 C386 164 436 160 466 170
+                 C488 178 497 193 493 209
+                 C488 227 462 238 428 237
+                 C392 236 338 228 322 214 Z"
+              fill="#8fa38e" stroke="#6b5334" stroke-width="7" stroke-linejoin="round"></path>
+        <circle cx="352" cy="199" r="9.5" fill="#4c412e"></circle>
+        <circle cx="355" cy="195" r="2.8" fill="#f2e6c4"></circle>
+      </g>
+    </g>
+  </g>
+</svg>
+
+<style>
+  /* pivots as percentages of the 720×720 viewBox so scaled renders keep the
+     exact point (Safari mishandles px origins in scaled SVGs):
+     (440,415)/720 = where the neck enters the coil, (468,183)/720 = the
+     head/neck joint */
+  .sway {
+    transform-box: view-box;
+    transform-origin: 61.111% 57.639%;
+  }
+  .head {
+    transform-box: view-box;
+    transform-origin: 65% 25.417%;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .sway {
+      animation: cobra-sway 3.2s ease-in-out infinite;
+    }
+    .head {
+      animation: cobra-head 3.2s ease-in-out infinite;
+    }
+  }
+  @keyframes cobra-sway {
+    0%,
+    100% {
+      transform: rotate(-3deg);
+    }
+    50% {
+      transform: rotate(17deg);
+    }
+  }
+  @keyframes cobra-head {
+    0%,
+    100% {
+      transform: rotate(3deg);
+    }
+    50% {
+      transform: rotate(-12deg);
+    }
+  }
+</style>
