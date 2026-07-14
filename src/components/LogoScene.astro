@@ -1,16 +1,20 @@
 ---
 /**
- * The animated logo — the studio emblem rebuilt layer by layer (cream
- * disc, peach circle, cat in front, cobra draped over its back) so it can:
+ * The animated logo — the studio emblem rebuilt layer by layer, traced 1:1
+ * from the logo video (all layers share one 720×720 scene grid, so stacking
+ * them full-bleed reproduces the artwork exactly). Layer order matters:
+ * neck+head behind the cat, coil in front of it, tail on top of the coil.
+ * The scene can:
  *   1. assemble itself on first paint,
- *   2. live subtly (breathing, sway, blinks),
- *   3. come apart on scroll (disc opens, characters drift) — the logo
- *      "transforms" into the page,
+ *   2. live subtly (cobra sway + head whip, cat breathing),
+ *   3. come apart on scroll (disc opens, cobra parts drift together) — the
+ *      logo "transforms" into the page,
  *   4. morph into the header brand mark via view transitions.
  * Each layer nests three wrappers: scroll-driven ▸ parallax ▸ assemble.
  */
-import Cat from './characters/Cat.astro';
-import Cobra from './characters/Cobra.astro';
+import EmblemCat from './emblem/EmblemCat.astro';
+import EmblemCobra from './emblem/EmblemCobra.astro';
+import EmblemCoil from './emblem/EmblemCoil.astro';
 ---
 
 <div
@@ -18,15 +22,19 @@ import Cobra from './characters/Cobra.astro';
   data-hero-scene
   transition:name="brand"
 >
-  <!-- cream disc -->
-  <div class="logo-layer logo-disc absolute inset-0">
+  <!-- cream badge disc: center (360,360) r350 on the 720 grid -->
+  <div class="logo-layer logo-disc absolute inset-[1.4%]">
     <div class="parallax h-full w-full" style="--depth: 4px">
-      <div class="anim-bloom h-full w-full rounded-full bg-surface shadow-(--shadow-card)"></div>
+      <div
+        class="anim-bloom h-full w-full rounded-full shadow-(--shadow-card) transition-colors duration-300"
+        style="background: var(--scene-badge)"
+      >
+      </div>
     </div>
   </div>
 
-  <!-- peach circle -->
-  <div class="logo-layer logo-ring absolute inset-[12%]">
+  <!-- peach circle: center (365,381) r243 on the 720 grid -->
+  <div class="logo-layer logo-ring absolute" style="left: 17%; top: 19.2%; width: 67.5%; height: 67.5%">
     <div class="parallax h-full w-full" style="--depth: 8px">
       <div
         class="anim-bloom h-full w-full rounded-full transition-colors duration-300"
@@ -36,20 +44,29 @@ import Cobra from './characters/Cobra.astro';
     </div>
   </div>
 
-  <!-- cat lounging in front -->
-  <div class="logo-layer logo-cat absolute bottom-[17%] left-[6%] w-[72%]">
-    <div class="parallax" style="--depth: 16px">
-      <div class="anim-rise" style="animation-delay: 260ms">
-        <Cat class="w-full drop-shadow-sm" />
+  <!-- cobra neck + head, rising behind the cat -->
+  <div class="logo-layer logo-cobra absolute inset-0">
+    <div class="parallax h-full w-full" style="--depth: 12px">
+      <div class="anim-rise h-full w-full" style="animation-delay: 420ms">
+        <EmblemCobra class="h-full w-full" />
       </div>
     </div>
   </div>
 
-  <!-- cobra draped over the cat's back, neck rising behind -->
-  <div class="logo-layer logo-cobra absolute right-[16%] bottom-[25%] w-[38%]">
-    <div class="parallax" style="--depth: 12px">
-      <div class="anim-rise" style="animation-delay: 420ms">
-        <Cobra class="w-full" />
+  <!-- cat lounging in front of the neck -->
+  <div class="logo-layer logo-cat absolute inset-0">
+    <div class="parallax h-full w-full" style="--depth: 16px">
+      <div class="anim-rise h-full w-full" style="animation-delay: 260ms">
+        <EmblemCat class="h-full w-full drop-shadow-sm" />
+      </div>
+    </div>
+  </div>
+
+  <!-- coil draped over the cat's back (tail tucks over its tip) -->
+  <div class="logo-layer logo-coil absolute inset-0">
+    <div class="parallax h-full w-full" style="--depth: 14px">
+      <div class="anim-rise h-full w-full" style="animation-delay: 340ms">
+        <EmblemCoil class="h-full w-full" />
       </div>
     </div>
   </div>
@@ -91,7 +108,9 @@ import Cobra from './characters/Cobra.astro';
       .logo-cat {
         animation-name: logo-cat-part;
       }
-      .logo-cobra {
+      /* neck and coil are one snake — they drift away together */
+      .logo-cobra,
+      .logo-coil {
         animation-name: logo-cobra-part;
       }
     }
