@@ -1,9 +1,11 @@
 ---
+import { Image } from 'astro:assets';
 import AppLayout from '../../layouts/AppLayout.astro';
 import Accordion from '../Accordion.astro';
 import Cat from '../characters/Cat.astro';
 import Cobra from '../characters/Cobra.astro';
 import { artists } from '../../data/artists';
+import { getArtistPhoto } from '../../data/artistPhotos';
 import { getStyle } from '../../data/styles';
 import { useDict, type Locale } from '../../i18n';
 
@@ -43,30 +45,45 @@ const mailto = (subject: string) => `mailto:${studioEmail}?subject=${encodeURICo
     <h2 class="mt-12 font-display text-2xl font-semibold">{t.booking.chooseArtist}</h2>
     <div class="mt-4 space-y-3">
       {
-        artists.map((artist) => (
-          <a
-            id={artist.id}
-            href={mailto(`Booking request — ${artist.handle}`)}
-            class="flex items-center gap-4 rounded-2xl border border-line bg-surface p-4 shadow-(--shadow-card) transition-transform active:scale-[0.98]"
-            style={`scroll-margin-top: 5rem`}
-          >
-            <span
-              class="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full"
-              style={`background:${artist.accent}40`}
+        artists.map((artist) => {
+          const photo = getArtistPhoto(artist.id);
+          return (
+            <a
+              id={artist.id}
+              href={mailto(`Booking request — ${artist.handle}`)}
+              class="flex items-center gap-4 rounded-2xl border border-line bg-surface p-4 shadow-(--shadow-card) transition-transform active:scale-[0.98]"
+              style={`scroll-margin-top: 5rem`}
             >
-              {artist.mood === 'cat' ? <Cat class="w-12 translate-y-1" /> : <Cobra class="h-12" />}
-            </span>
-            <span class="min-w-0 grow">
-              <span class="block font-display font-semibold">{artist.handle}</span>
-              <span class="block truncate text-xs text-ink-soft">
-                {artist.styles.map((s) => getStyle(s)?.name[locale]).filter(Boolean).join(' · ')}
+              <span
+                class="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full"
+                style={`background:${artist.accent}40`}
+              >
+                {photo ? (
+                  <Image
+                    src={photo}
+                    alt={artist.handle}
+                    width={112}
+                    height={112}
+                    class="h-14 w-14 object-cover"
+                  />
+                ) : artist.mood === 'cat' ? (
+                  <Cat class="w-12 translate-y-1" />
+                ) : (
+                  <Cobra class="h-12" />
+                )}
               </span>
-            </span>
-            <span class="shrink-0 rounded-full bg-accent px-4 py-2 font-display text-xs font-bold text-charcoal">
-              {t.artists.bookWith.split(' ')[0]}
-            </span>
-          </a>
-        ))
+              <span class="min-w-0 grow">
+                <span class="block font-display font-semibold">{artist.handle}</span>
+                <span class="block truncate text-xs text-ink-soft">
+                  {artist.styles.map((s) => getStyle(s)?.name[locale]).filter(Boolean).join(' · ')}
+                </span>
+              </span>
+              <span class="shrink-0 rounded-full bg-accent px-4 py-2 font-display text-xs font-bold text-charcoal">
+                {t.artists.bookWith.split(' ')[0]}
+              </span>
+            </a>
+          );
+        })
       }
       <a
         href={mailto('Booking request — help me choose an artist')}
