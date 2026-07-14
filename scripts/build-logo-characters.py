@@ -91,8 +91,7 @@ curve = np.array([
     for t in ts
 ])
 curve_y = np.interp(np.arange(W), curve[:, 0], curve[:, 1], left=1e9, right=1e9)
-below = yy > curve_y[None].repeat(H, 0)[0]  # broadcast per column
-below = yy > np.tile(curve_y, (H, 1))
+below = yy > curve_y  # (W,) broadcasts against (H, W)
 fill_mask = cobra_solid & below & (xx >= 400) & (xx <= 580) & (yy <= 560)
 # the original had a small peach pocket between coil and haunch — once the
 # cobra is gone it must read as fur inside the rebuilt silhouette
@@ -132,7 +131,7 @@ cat_rgb = cat_rgb * (1 - smask) + ink * smask
 # the stroke IS the back silhouette across the rebuilt span: trim any fur
 # poking above it (the coil's under-edge left a ragged soft boundary there)
 span = (xx >= 404) & (xx <= 570) & (yy > 340)
-above = span & (yy < np.tile(curve_y, (H, 1)) - 2)
+above = span & (yy < curve_y - 2)
 cat_full = ((cat | fill_mask) & ~above) | (stroke > 0.4)
 cat_full = ndimage.binary_fill_holes(cat_full)  # close any junction slivers
 
