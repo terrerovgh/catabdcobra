@@ -30,11 +30,25 @@ horror/blackwork side. Both are hand-built layered SVGs animated with CSS.
 |-------|------|
 | Public site | [Astro 5](https://astro.build) + [Tailwind CSS 4](https://tailwindcss.com) |
 | Admin SPA | React (mounted from Astro) at `/catandcobra/admin/` |
-| API | Cloudflare Worker + [Hono](https://hono.dev) |
-| Data | Cloudflare **D1** (SQLite) |
-| Uploads | Cloudflare **R2** |
-| OTP email | Cloudflare **Email Sending** (`send_email` binding) |
-| Deploy | `wrangler` → `terrerov.com/catandcobra*` |
+| Runtime | **Cloudflare Workers** + Static Assets (**not** Pages) |
+| API | Worker script + [Hono](https://hono.dev) under `/catandcobra/api/*` |
+| Data | Cloudflare **D1** (`cat-and-cobra`) |
+| Uploads | Cloudflare **R2** (`cat-and-cobra-media`) |
+| OTP email | Cloudflare **Email Sending** (`EMAIL` binding) |
+| Config | `wrangler.jsonc` |
+| Deploy | Workers Builds (Git-connected) + optional GitHub Actions |
+
+### Why Workers, not Pages?
+
+This app needs a single process that:
+
+1. Serves the static Astro build from `dist/`
+2. Runs authenticated API routes with D1 + R2
+3. Strips the `/catandcobra` path prefix on `terrerov.com`
+
+That is **Workers + Static Assets** (`assets.directory` + `run_worker_first`).  
+Cloudflare **Pages** is the wrong product here (no dual API Worker under the same
+path without extra complexity). Do **not** create a Pages project for this repo.
 
 ## Quick start
 
@@ -208,22 +222,47 @@ src/components/GalleryGrid.astro   # public gallery (API-driven)
 - Styles / designs: `src/data/styles.ts`, `src/data/designs.ts`
 - UI copy (EN/ES): `src/i18n/en.ts`, `src/i18n/es.ts`
 
+## Cloudflare production map
+
+| Resource | Name / value |
+|----------|----------------|
+| Worker | `catabdcobra` |
+| Account | `1ddbfa86148b21137f5125cbdd637e8c` |
+| Routes | `terrerov.com/catandcobra*`, `www.terrerov.com/catandcobra*` |
+| D1 | `cat-and-cobra` → `35c2d2b0-4e08-4565-b4b2-7031b2901f70` |
+| R2 | `cat-and-cobra-media` |
+| Email binding | `EMAIL` (unrestricted send; onboard `terrerov.com` in Email Sending) |
+| Observability | enabled in `wrangler.jsonc` |
+
+### Email Sending (OTP)
+
+1. Dashboard → **Email Service** → **Email Sending** → onboard **`terrerov.com`**
+2. Confirm SPF/DKIM DNS records
+3. From address: `noreply@terrerov.com` (or change `EMAIL_FROM` vars)
+
+Until the domain is onboarded, OTP is written to **Workers logs**
+(`[otp-fallback]`) so admins are not locked out.
+
 ## Deploying to Cloudflare Workers
 
-Served at **`terrerov.com/catandcobra`** as its own Worker (coexists with the
-rest of the zone via specific routes).
+Served at **`terrerov.com/catandcobra`** as Worker `catabdcobra` (coexists with
+other zone routes via path patterns).
 
 ```sh
-npm run build
-npm run db:migrate:remote    # after schema changes
-npx wrangler deploy
+# Prefer OAuth with full scopes for local deploy:
+# (avoid project .env CLOUDFLARE_API_TOKEN if it lacks D1 permissions)
+npx wrangler login
+npm run deploy                 # build + wrangler deploy
+npm run db:migrate:remote      # after schema changes
+npx wrangler types             # refresh worker-configuration.d.ts
 ```
 
 - `base: '/catandcobra'` in `astro.config.mjs`
 - Worker strips prefix, serves `/api/*` via Hono, assets from `dist/`
-- Bindings: `DB` (D1), `MEDIA` (R2), `EMAIL`, `ASSETS`
-- CI: `.github/workflows/deploy.yml` on `main` needs
-  `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`
+- **Primary CI:** Cloudflare Workers Builds (build: `npm run build`, deploy: `npx wrangler deploy`)
+- **Optional CI:** `.github/workflows/deploy.yml` needs repo secrets
+  `CLOUDFLARE_API_TOKEN` (Workers Scripts + D1 + R2 + Account Read) and
+  `CLOUDFLARE_ACCOUNT_ID`
 
 ### Public API (no auth)
 

@@ -21,19 +21,23 @@ export async function sendOtpEmail(
   try {
     await env.EMAIL.send({
       to,
-      from: { email: env.EMAIL_FROM || 'noreply@terrerov.com', name: env.EMAIL_FROM_NAME || 'Cat & Cobra' },
+      from: {
+        email: env.EMAIL_FROM || 'noreply@terrerov.com',
+        name: env.EMAIL_FROM_NAME || 'Cat & Cobra',
+      },
       subject,
       text,
       html,
     });
     return { sent: true, ...(isDev ? { devCode: code } : {}) };
   } catch (e) {
-    // Local/dev without Email Sending onboarded: log code so login still works.
+    // Email Sending not onboarded / DNS not ready: keep login unblocked.
     console.error('[email] send failed', e);
+    console.log(`[otp-fallback] ${to} code=${code}`);
     if (isDev) {
-      console.log(`[dev OTP] ${to} => ${code}`);
       return { sent: false, devCode: code };
     }
-    throw e;
+    // Production: do not expose code in API response; ops can read Workers logs.
+    return { sent: false };
   }
 }

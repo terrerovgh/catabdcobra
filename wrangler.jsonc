@@ -1,0 +1,66 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Must match Cloudflare Workers Builds connected project name.
+  "name": "catabdcobra",
+  "main": "./src/worker/index.ts",
+  "compatibility_date": "2026-07-14",
+  "compatibility_flags": ["nodejs_compat"],
+  "account_id": "1ddbfa86148b21137f5125cbdd637e8c",
+
+  // Architecture: Cloudflare Workers + Static Assets (NOT Pages).
+  // Worker handles /catandcobra prefix, API (D1/R2/auth), then serves dist/.
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // Always hit Worker first so we can strip /catandcobra and route /api/*
+    "run_worker_first": true
+  },
+
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+
+  "routes": [
+    {
+      "pattern": "terrerov.com/catandcobra*",
+      "zone_name": "terrerov.com"
+    },
+    {
+      "pattern": "www.terrerov.com/catandcobra*",
+      "zone_name": "terrerov.com"
+    }
+  ],
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "cat-and-cobra",
+      "database_id": "35c2d2b0-4e08-4565-b4b2-7031b2901f70",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "cat-and-cobra-media"
+    }
+  ],
+
+  // Requires Email Sending enabled for the from-domain in the dashboard.
+  // OAuth token may need zone Email Sending access for CLI enable.
+  "send_email": [
+    {
+      "name": "EMAIL"
+    }
+  ],
+
+  "vars": {
+    "SESSION_TTL_DAYS": "14",
+    "OTP_TTL_MINUTES": "10",
+    "EMAIL_FROM": "noreply@terrerov.com",
+    "EMAIL_FROM_NAME": "Cat & Cobra Admin",
+    "ENVIRONMENT": "production"
+  }
+}
