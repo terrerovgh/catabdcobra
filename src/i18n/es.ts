@@ -67,6 +67,10 @@ export const es: Dict = {
     emptyBody:
       'Estamos curando este portafolio ahora mismo. Mientras tanto, el trabajo más reciente vive en Instagram.',
     placeholderAlt: 'Foto de tatuaje muy pronto',
+    close: 'Cerrar',
+    prev: 'Anterior',
+    next: 'Siguiente',
+    zoom: 'Ampliar',
   },
   aftercare: {
     title: 'Cuidados',

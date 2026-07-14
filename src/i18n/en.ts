@@ -65,6 +65,10 @@ export const en = {
     emptyBody:
       'We’re curating this portfolio right now. Meanwhile, the freshest work lives on Instagram.',
     placeholderAlt: 'Tattoo photo coming soon',
+    close: 'Close',
+    prev: 'Previous',
+    next: 'Next',
+    zoom: 'View larger',
   },
   aftercare: {
     title: 'Aftercare',
