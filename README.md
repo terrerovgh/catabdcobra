@@ -51,3 +51,31 @@ fresh ⇄ healed toggle when both variants exist. See
 - Artists: `src/data/artists.ts`
 - Styles: `src/data/styles.ts`
 - UI copy (EN/ES): `src/i18n/en.ts`, `src/i18n/es.ts`
+
+## Deploying to Cloudflare Workers
+
+The site is served at `terrerov.com/catandcobra` (not its own subdomain),
+alongside whatever else already runs on that zone. It's deployed as its
+own Cloudflare Worker with static assets:
+
+- `astro.config.mjs` sets `base: '/catandcobra'` so all generated links
+  and asset URLs carry the prefix.
+- `src/worker/index.ts` strips the `/catandcobra` prefix before serving
+  from the `dist/` assets binding, since the build output itself isn't
+  nested under that path.
+- `wrangler.toml` declares the Worker (assets directory `dist`) and a
+  route `terrerov.com/catandcobra*` on the `terrerov.com` zone. Cloudflare
+  matches the most specific route on a zone, so this coexists with
+  whatever Worker currently serves the rest of `terrerov.com` — no need
+  to touch it.
+
+To deploy:
+
+```sh
+npm run build
+npx wrangler deploy   # requires a Cloudflare API token with Workers Scripts + Zone edit
+```
+
+`.github/workflows/deploy.yml` runs the same on every push to `main` —
+add the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repo secrets
+for it to run.
