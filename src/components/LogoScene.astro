@@ -115,8 +115,9 @@
     }
   }
 
-  /* soften the artwork a touch in the dark theme */
-  :global(html[data-theme='cobra']) .logo-scene img {
+  /* soften the artwork a touch in the dark theme (on the container, so it
+     composites once and doesn't clobber the base image's drop-shadow) */
+  :global(html[data-theme='cobra']) .logo-scene {
     filter: brightness(0.94) saturate(0.96);
   }
 

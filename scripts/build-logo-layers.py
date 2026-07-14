@@ -16,8 +16,13 @@ import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'src/assets/logo-original.png')
-OUT = os.environ.get('LOGO_OUT', '/tmp/logo-layers')
-os.makedirs(OUT, exist_ok=True)
+# shipped assets go straight into the site; full-res PNGs and the seam-check
+# composites are only for eyeballing, so they stay out of public/
+OUT_LOGO = os.path.join(ROOT, 'public/logo')
+OUT_PUBLIC = os.path.join(ROOT, 'public')
+OUT_CHECK = os.environ.get('LOGO_CHECK_OUT', '/tmp/logo-layers-check')
+for d in (OUT_LOGO, OUT_PUBLIC, OUT_CHECK):
+    os.makedirs(d, exist_ok=True)
 
 im = Image.open(SRC).convert('RGBA')
 a = np.array(im).astype(float)
@@ -140,8 +145,8 @@ def soft(mask, sigma=1.1):
 def save(name, arr_rgb, arr_alpha):
     out = np.dstack([np.clip(arr_rgb, 0, 255), np.clip(arr_alpha, 0, 255)]).astype(np.uint8)
     img = Image.fromarray(out)
-    img.save(f'{OUT}/{name}.png')
-    img.save(f'{OUT}/{name}.webp', quality=92, method=6)
+    img.save(f'{OUT_CHECK}/{name}.png')
+    img.save(f'{OUT_LOGO}/{name}.webp', quality=92, method=6)
     return img
 
 save('logo-base', base_rgb, alpha)
@@ -152,20 +157,20 @@ full = save('logo-full', rgb, alpha)
 # ---- rest-state composite must reproduce the original --------------------
 comp = Image.new('RGBA', (W, H))
 for layer in ('logo-base', 'logo-cobra', 'logo-coil'):
-    comp.alpha_composite(Image.open(f'{OUT}/{layer}.png'))
-comp.save(f'{OUT}/check_rest.png')
+    comp.alpha_composite(Image.open(f'{OUT_CHECK}/{layer}.png'))
+comp.save(f'{OUT_CHECK}/check_rest.png')
 
 # ---- swung composites to eyeball seams -----------------------------------
 pivot = (467, 385)
 for ang in (-2.2, 6, 9):
-    c2 = Image.open(f'{OUT}/logo-base.png')
-    cobra = Image.open(f'{OUT}/logo-cobra.png').rotate(-ang, center=pivot, resample=Image.BICUBIC)
+    c2 = Image.open(f'{OUT_CHECK}/logo-base.png')
+    cobra = Image.open(f'{OUT_CHECK}/logo-cobra.png').rotate(-ang, center=pivot, resample=Image.BICUBIC)
     c2.alpha_composite(cobra)
-    c2.alpha_composite(Image.open(f'{OUT}/logo-coil.png'))
-    c2.save(f'{OUT}/check_sway_{ang}.png')
+    c2.alpha_composite(Image.open(f'{OUT_CHECK}/logo-coil.png'))
+    c2.save(f'{OUT_CHECK}/check_sway_{ang}.png')
 
 # ---- brand mark + icons ---------------------------------------------------
-full.resize((192, 192), Image.LANCZOS).save(f'{OUT}/logo-mark.webp', quality=92, method=6)
+full.resize((192, 192), Image.LANCZOS).save(f'{OUT_LOGO}/logo-mark.webp', quality=92, method=6)
 for s, name in [(512, 'icon-512.png'), (192, 'icon-192.png'), (180, 'apple-touch-icon.png'), (64, 'favicon.png')]:
-    full.resize((s, s), Image.LANCZOS).save(f'{OUT}/{name}')
+    full.resize((s, s), Image.LANCZOS).save(f'{OUT_PUBLIC}/{name}')
 print('done')
