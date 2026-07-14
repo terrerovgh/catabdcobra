@@ -132,17 +132,31 @@ until published.
 
 ### First-time Cloudflare setup
 
+Deploy fails with **D1 binding error 10181** if `database_id` in `wrangler.toml`
+is still the local placeholder (`00000000-0000-0000-0000-000000000001`).
+
 ```sh
+# Authenticate (or set CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID)
+npx wrangler login
+
 # Create D1 + R2 (once per account)
 npx wrangler d1 create cat-and-cobra
-# paste database_id into wrangler.toml → d1_databases.database_id
+# → copy database_id into wrangler.toml [[d1_databases]]
+
 npx wrangler r2 bucket create cat-and-cobra-media
 
 # Enable transactional email from your zone
 npx wrangler email sending enable terrerov.com
 
-npm run db:migrate:local   # or --remote for production DB
+npm run db:migrate:local
+npx wrangler d1 migrations apply cat-and-cobra --remote
 ```
+
+Or run the GitHub Action **“Provision Cloudflare (D1 + R2)”** (`workflow_dispatch`)
+if `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repo secrets are set; then
+paste the printed `database_id` into `wrangler.toml` and push.
+
+Worker name in config is **`catabdcobra`** (matches Cloudflare Workers Builds).
 
 ## Adding gallery photos (archive)
 
