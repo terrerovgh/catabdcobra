@@ -1,4 +1,4 @@
-name = "cat-and-cobra"
+name = "catabdcobra"
 main = "./src/worker/index.ts"
 compatibility_date = "2026-07-13"
 
