@@ -1,56 +1,77 @@
 ---
 /**
- * The animated logo — the studio emblem rebuilt layer by layer (cream
- * disc, peach circle, cat in front, cobra draped over its back) so it can:
- *   1. assemble itself on first paint,
- *   2. live subtly (breathing, sway, blinks),
- *   3. come apart on scroll (disc opens, characters drift) — the logo
- *      "transforms" into the page,
- *   4. morph into the header brand mark via view transitions.
- * Each layer nests three wrappers: scroll-driven ▸ parallax ▸ assemble.
+ * The animated logo — built from the ORIGINAL studio artwork, not a trace.
+ * `scripts/build-logo-layers.py` slices src/assets/logo-original.png into
+ * three stacked full-bleed layers (same 779×779 canvas):
+ *   1. logo-base  — badge, peach circle, cat and coil, with the cobra's
+ *      neck+head removed and the background reconstructed behind it,
+ *   2. logo-cobra — just the neck+head cutout, the layer that sways,
+ *   3. logo-coil  — a static copy of the coil's top edge that sits on top
+ *      and hides the cutout's lower edge where the neck slips behind it.
+ * The scene assembles on first paint, breathes, sways the cobra from the
+ * exact point the neck leaves the coil, tilts with pointer/gyro, comes
+ * apart on scroll, and morphs into the header brand mark via view
+ * transitions. Layer nesting: scroll-driven ▸ parallax ▸ assemble ▸ sway.
  */
-import Cat from './characters/Cat.astro';
-import Cobra from './characters/Cobra.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <div
-  class="logo-scene relative mx-auto aspect-square w-full max-w-sm"
+  class="logo-scene anim-breathe relative mx-auto aspect-square w-full max-w-sm"
   data-hero-scene
   transition:name="brand"
+  role="img"
+  aria-label="Cat & Cobra Tattoo Studio logo"
 >
-  <!-- cream disc -->
-  <div class="logo-layer logo-disc absolute inset-0">
-    <div class="parallax h-full w-full" style="--depth: 4px">
-      <div class="anim-bloom h-full w-full rounded-full bg-surface shadow-(--shadow-card)"></div>
+  <!-- badge + circle + cat + coil (cobra removed, background rebuilt) -->
+  <div class="logo-layer logo-base absolute inset-0">
+    <div class="parallax h-full w-full" style="--depth: 6px">
+      <img
+        class="anim-bloom h-full w-full drop-shadow-lg"
+        src={`${base}/logo/logo-base.webp`}
+        width="779"
+        height="779"
+        alt=""
+        loading="eager"
+        decoding="async"
+        draggable="false"
+      />
     </div>
   </div>
 
-  <!-- peach circle -->
-  <div class="logo-layer logo-ring absolute inset-[12%]">
-    <div class="parallax h-full w-full" style="--depth: 8px">
-      <div
-        class="anim-bloom h-full w-full rounded-full transition-colors duration-300"
-        style="background: var(--scene-disc); animation-delay: 120ms"
-      >
+  <!-- the cobra's neck + head: rises from behind the coil, then sways -->
+  <div class="logo-layer logo-cobra absolute inset-0">
+    <div class="parallax h-full w-full" style="--depth: 10px">
+      <div class="anim-rise h-full w-full" style="animation-delay: 380ms">
+        <div class="cobra-sway h-full w-full">
+          <img
+            class="h-full w-full"
+            src={`${base}/logo/logo-cobra.webp`}
+            width="779"
+            height="779"
+            alt=""
+            loading="eager"
+            decoding="async"
+            draggable="false"
+          />
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- cat lounging in front -->
-  <div class="logo-layer logo-cat absolute bottom-[17%] left-[6%] w-[72%]">
-    <div class="parallax" style="--depth: 16px">
-      <div class="anim-rise" style="animation-delay: 260ms">
-        <Cat class="w-full drop-shadow-sm" />
-      </div>
-    </div>
-  </div>
-
-  <!-- cobra draped over the cat's back, neck rising behind -->
-  <div class="logo-layer logo-cobra absolute right-[16%] bottom-[25%] w-[38%]">
-    <div class="parallax" style="--depth: 12px">
-      <div class="anim-rise" style="animation-delay: 420ms">
-        <Cobra class="w-full" />
-      </div>
+  <!-- static patch of the coil's top edge — the neck slides in behind it -->
+  <div class="logo-layer logo-base absolute inset-0">
+    <div class="parallax h-full w-full" style="--depth: 6px">
+      <img
+        class="anim-bloom h-full w-full"
+        src={`${base}/logo/logo-coil.webp`}
+        width="779"
+        height="779"
+        alt=""
+        loading="eager"
+        decoding="async"
+        draggable="false"
+      />
     </div>
   </div>
 
@@ -74,7 +95,35 @@ import Cobra from './characters/Cobra.astro';
     will-change: transform;
   }
 
-  /* The logo opens up as you scroll away from the hero */
+  /* the cobra sways like a pendulum from where the neck leaves the coil —
+     pivot (467,385) on the 779×779 canvas */
+  .cobra-sway {
+    transform-origin: 59.95% 49.42%;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .cobra-sway {
+      animation: cobra-sway 3.6s ease-in-out infinite;
+      will-change: transform;
+    }
+  }
+  @keyframes cobra-sway {
+    0%,
+    100% {
+      transform: rotate(-2.2deg);
+    }
+    50% {
+      transform: rotate(7deg);
+    }
+  }
+
+  /* soften the artwork a touch in the dark theme (on the container, so it
+     composites once and doesn't clobber the base image's drop-shadow) */
+  :global(html[data-theme='cobra']) .logo-scene {
+    filter: brightness(0.94) saturate(0.96);
+  }
+
+  /* The logo comes apart as you scroll away from the hero: the cobra
+     drifts off the cat's back (base + coil patch travel together) */
   @supports (animation-timeline: scroll()) {
     @media (prefers-reduced-motion: no-preference) {
       .logo-layer {
@@ -82,40 +131,24 @@ import Cobra from './characters/Cobra.astro';
         animation-timeline: scroll(root);
         animation-range: 0 70vh;
       }
-      .logo-disc {
-        animation-name: logo-disc-open;
-      }
-      .logo-ring {
-        animation-name: logo-ring-open;
-      }
-      .logo-cat {
-        animation-name: logo-cat-part;
+      .logo-base {
+        animation-name: logo-base-part;
       }
       .logo-cobra {
         animation-name: logo-cobra-part;
       }
     }
   }
-  @keyframes logo-disc-open {
+  @keyframes logo-base-part {
     to {
-      transform: scale(1.3);
-      opacity: 0;
-    }
-  }
-  @keyframes logo-ring-open {
-    to {
-      transform: scale(1.12);
-      opacity: 0.35;
-    }
-  }
-  @keyframes logo-cat-part {
-    to {
-      transform: translate(-30px, 14px);
+      transform: translate(-16px, 10px);
+      opacity: 0.85;
     }
   }
   @keyframes logo-cobra-part {
     to {
-      transform: translate(30px, -18px);
+      transform: translate(28px, -18px);
+      opacity: 0.85;
     }
   }
 </style>
