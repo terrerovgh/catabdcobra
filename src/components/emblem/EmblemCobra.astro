@@ -47,15 +47,17 @@ const { class: className = '' } = Astro.props;
 </svg>
 
 <style>
-  /* pivots are in viewBox units: (440,415) = where the neck enters the coil,
-     (468,183) = the head/neck joint */
+  /* pivots as percentages of the 720×720 viewBox so scaled renders keep the
+     exact point (Safari mishandles px origins in scaled SVGs):
+     (440,415)/720 = where the neck enters the coil, (468,183)/720 = the
+     head/neck joint */
   .sway {
     transform-box: view-box;
-    transform-origin: 440px 415px;
+    transform-origin: 61.111% 57.639%;
   }
   .head {
     transform-box: view-box;
-    transform-origin: 468px 183px;
+    transform-origin: 65% 25.417%;
   }
   @media (prefers-reduced-motion: no-preference) {
     .sway {
