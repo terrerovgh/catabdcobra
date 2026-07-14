@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import type { Artist } from '../data/artists';
+import { getArtistPhoto } from '../data/artistPhotos';
 import { getStyle } from '../data/styles';
 import { localePath, useDict, type Locale } from '../i18n';
 import Cat from './characters/Cat.astro';
@@ -13,15 +15,19 @@ interface Props {
 const { artist, locale, id } = Astro.props;
 const t = useDict(locale);
 const styleNames = artist.styles
-  .map((id) => getStyle(id)?.name[locale])
+  .map((sid) => getStyle(sid)?.name[locale])
   .filter(Boolean) as string[];
+const galleryHref = `${localePath(locale, '/gallery')}#artist=${artist.id}`;
+const photo = getArtistPhoto(artist.id);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const samplesApi = `${base}/api/public/profile-gallery/${artist.id}`;
 ---
 
 <article
   id={id}
   class="swipe-card relative flex w-72 flex-col overflow-hidden rounded-(--radius-card) border border-line bg-surface p-6 shadow-(--shadow-card)"
 >
-  <!-- accent halo + mascot avatar -->
+  <!-- Instagram profile photo (or mascot fallback) -->
   <div class="relative mx-auto grid h-32 w-32 place-items-center">
     <span
       class="absolute inset-0 rounded-full opacity-30"
@@ -32,7 +38,15 @@ const styleNames = artist.styles
       style={`background:${artist.accent}`}
       aria-hidden="true"></span>
     {
-      artist.mood === 'cat' ? (
+      photo ? (
+        <Image
+          src={photo}
+          alt={artist.handle}
+          width={256}
+          height={256}
+          class="relative z-10 h-28 w-28 rounded-full object-cover ring-2 ring-surface shadow-(--shadow-card)"
+        />
+      ) : artist.mood === 'cat' ? (
         <Cat class="relative w-28 translate-y-1.5" />
       ) : (
         <Cobra class="relative h-28" />
@@ -55,6 +69,15 @@ const styleNames = artist.styles
     }
   </div>
 
+  <!-- Samples: only images selected for this artist's profile (show_in_profile) -->
+  <a
+    href={galleryHref}
+    class="mt-3 hidden grid-cols-3 gap-1.5"
+    aria-label={t.artists.seeWork}
+    data-artist-samples
+    data-samples-api={samplesApi}
+  ></a>
+
   <p class="mt-3 grow text-sm leading-relaxed text-ink-soft">{artist.bio[locale]}</p>
 
   <div class="mt-5 flex gap-2">
@@ -74,3 +97,31 @@ const styleNames = artist.styles
     </a>
   </div>
 </article>
+
+<script>
+  function loadArtistSamples() {
+    document.querySelectorAll<HTMLElement>('[data-artist-samples]').forEach((el) => {
+      if (el.dataset.init) return;
+      el.dataset.init = '1';
+      const api = el.dataset.samplesApi;
+      if (!api) return;
+      fetch(api)
+        .then((r) => r.json())
+        .then((json) => {
+          if (!json?.ok) return;
+          const items = (json.data?.media || []).slice(0, 3) as { url: string }[];
+          if (!items.length) return;
+          el.classList.remove('hidden');
+          el.classList.add('grid');
+          el.innerHTML = items
+            .map(
+              (m) =>
+                `<img src="${m.url}" alt="" width="160" height="160" loading="lazy" class="aspect-square w-full rounded-lg object-cover" />`,
+            )
+            .join('');
+        })
+        .catch(() => {});
+    });
+  }
+  document.addEventListener('astro:page-load', loadArtistSamples);
+</script>

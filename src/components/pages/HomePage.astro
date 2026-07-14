@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import AppLayout from '../../layouts/AppLayout.astro';
 import LogoScene from '../LogoScene.astro';
 import SwipeDeck from '../SwipeDeck.astro';
@@ -6,6 +7,7 @@ import StyleCard from '../StyleCard.astro';
 import Cat from '../characters/Cat.astro';
 import { styles } from '../../data/styles';
 import { artists } from '../../data/artists';
+import { getArtistPhoto } from '../../data/artistPhotos';
 import { localePath, useDict, type Locale } from '../../i18n';
 
 interface Props {
@@ -13,6 +15,10 @@ interface Props {
 }
 const { locale } = Astro.props;
 const t = useDict(locale);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const publicGalleryApi = `${base}/api/public/gallery`;
+const styleLabels = Object.fromEntries(styles.map((s) => [s.id, s.name[locale]]));
+const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
 ---
 
 <AppLayout locale={locale} brandInHero>
@@ -63,15 +69,32 @@ const t = useDict(locale);
     <p class="mt-1 text-sm text-ink-soft">{t.home.artistsSub}</p>
     <div class="mt-4 flex flex-wrap gap-2">
       {
-        artists.map((artist) => (
-          <a
-            href={`${localePath(locale, '/artists')}#${artist.id}`}
-            class="flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-bold transition-transform active:scale-[0.98]"
-          >
-            <span class="h-2.5 w-2.5 rounded-full" style={`background:${artist.accent}`} aria-hidden="true" />
-            {artist.handle}
-          </a>
-        ))
+        artists.map((artist) => {
+          const photo = getArtistPhoto(artist.id);
+          return (
+            <a
+              href={`${localePath(locale, '/artists')}#${artist.id}`}
+              class="flex items-center gap-2 rounded-full border border-line bg-surface py-1 pr-3 pl-1 text-xs font-bold transition-transform active:scale-[0.98]"
+            >
+              {photo ? (
+                <Image
+                  src={photo}
+                  alt=""
+                  width={48}
+                  height={48}
+                  class="h-7 w-7 rounded-full object-cover ring-1 ring-line"
+                />
+              ) : (
+                <span
+                  class="h-7 w-7 rounded-full"
+                  style={`background:${artist.accent}`}
+                  aria-hidden="true"
+                />
+              )}
+              {artist.handle}
+            </a>
+          );
+        })
       }
     </div>
     <a
@@ -81,6 +104,96 @@ const t = useDict(locale);
       {t.home.meetArtists}
     </a>
   </section>
+
+  <!-- portfolio teaser: only images selected for the public web (show_in_gallery) -->
+  <section
+    class="snap-section mt-14 hidden"
+    data-home-featured
+    data-api={publicGalleryApi}
+    data-gallery-href={localePath(locale, '/gallery')}
+    data-labels={JSON.stringify({ styles: styleLabels, artists: artistLabels })}
+  >
+    <div class="px-6">
+      <h2 class="font-display text-2xl font-semibold">{t.home.workTitle}</h2>
+      <p class="mt-1 text-sm text-ink-soft">{t.home.workSub}</p>
+    </div>
+    <div class="mt-4 grid grid-cols-2 gap-3 px-5 sm:grid-cols-4" data-home-featured-grid></div>
+    <div class="mt-5 px-6">
+      <a
+        href={localePath(locale, '/gallery')}
+        class="inline-block rounded-full bg-accent px-6 py-2.5 font-display text-sm font-semibold text-charcoal transition-transform active:scale-[0.98]"
+      >
+        {t.home.workCta}
+      </a>
+    </div>
+  </section>
+
+  <script>
+    function initHomeFeatured() {
+      const root = document.querySelector<HTMLElement>('[data-home-featured]');
+      if (!root || root.dataset.init) return;
+      root.dataset.init = '1';
+      const api = root.dataset.api!;
+      const galleryHref = root.dataset.galleryHref || '/gallery';
+      const labels = JSON.parse(root.dataset.labels || '{}') as {
+        styles: Record<string, string>;
+        artists: Record<string, string>;
+      };
+      const grid = root.querySelector('[data-home-featured-grid]');
+      if (!grid) return;
+
+      fetch(api)
+        .then((r) => r.json())
+        .then((json) => {
+          if (!json?.ok) return;
+          const items = (json.data?.media || []) as {
+            id: string;
+            url: string;
+            artist_id?: string;
+            style_id?: string;
+            title?: string;
+          }[];
+          if (!items.length) return;
+
+          // Prefer one per artist, then fill to 8
+          const picked: typeof items = [];
+          const seenArtist = new Set<string>();
+          for (const m of items) {
+            const a = m.artist_id || '';
+            if (a && seenArtist.has(a)) continue;
+            if (a) seenArtist.add(a);
+            picked.push(m);
+            if (picked.length >= 8) break;
+          }
+          for (const m of items) {
+            if (picked.length >= 8) break;
+            if (picked.some((p) => p.id === m.id)) continue;
+            picked.push(m);
+          }
+
+          grid.innerHTML = picked
+            .map((m) => {
+              const style = labels.styles[m.style_id || ''] || m.style_id || '';
+              const artist = labels.artists[m.artist_id || ''] || m.artist_id || '';
+              const alt = m.title || `${style} — ${artist}`;
+              return `<a href="${galleryHref}" class="group overflow-hidden rounded-2xl border border-line bg-surface shadow-(--shadow-card)">
+                <div class="relative aspect-square overflow-hidden">
+                  <img src="${m.url}" alt="${alt.replace(/"/g, '&quot;')}" width="480" height="480" loading="lazy"
+                    class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                </div>
+                <div class="flex items-center justify-between gap-1 p-2 text-[0.7rem]">
+                  <span class="font-display font-semibold">${style}</span>
+                  <span class="truncate text-ink-soft">${artist}</span>
+                </div>
+              </a>`;
+            })
+            .join('');
+          root.classList.remove('hidden');
+        })
+        .catch(() => {});
+    }
+    document.addEventListener('astro:page-load', initHomeFeatured);
+  </script>
 
   <!-- visit -->
   <section class="snap-section mt-14 px-6">

@@ -4,18 +4,34 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
+    "dev": "astro dev --open /catandcobra/",
+    "prebuild": "node scripts/index-gallery-for-admin.mjs",
     "build": "astro build",
     "preview": "astro preview",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "dev:full": "npm run build && wrangler dev",
+    "db:migrate:local": "wrangler d1 migrations apply cat-and-cobra --local",
+    "db:migrate:remote": "wrangler d1 migrations apply cat-and-cobra --remote",
+    "types:worker": "wrangler types",
+    "gallery:index": "node scripts/index-gallery-for-admin.mjs",
+    "gallery:download": "python3 scripts/download-gallery-images.py",
+    "gallery:instagram": "python3 scripts/download-instagram-rapidapi.py",
+    "gallery:categorize": "python3 scripts/categorize-gallery.py --skip-fetch && python3 scripts/reclassify-gallery-local.py"
   },
   "dependencies": {
+    "@astrojs/react": "^6.0.1",
     "@fontsource-variable/fredoka": "^5.2.10",
     "@fontsource-variable/inter": "^5.2.8",
-    "astro": "^5.0.0"
+    "astro": "^5.0.0",
+    "hono": "^4.12.30",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260714.1",
     "@tailwindcss/vite": "^4.0.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
     "tailwindcss": "^4.0.0",
     "wrangler": "^4.0.0"
   }
