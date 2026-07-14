@@ -48,11 +48,14 @@
     }
   ],
 
-  // Requires Email Sending enabled for the from-domain in the dashboard.
-  // OAuth token may need zone Email Sending access for CLI enable.
+  // Email Sending (transactional OTP). Domain terrerov.com must be onboarded:
+  //   Dashboard → Email Service → Email Sending → Onboard Domain
+  //   or: node scripts/setup-cloudflare-email.mjs
   "send_email": [
     {
-      "name": "EMAIL"
+      "name": "EMAIL",
+      // Local `wrangler dev` talks to real Email Sending (not a mock).
+      "remote": true
     }
   ],
 

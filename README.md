@@ -236,12 +236,30 @@ src/components/GalleryGrid.astro   # public gallery (API-driven)
 
 ### Email Sending (OTP)
 
-1. Dashboard → **Email Service** → **Email Sending** → onboard **`terrerov.com`**
-2. Confirm SPF/DKIM DNS records
-3. From address: `noreply@terrerov.com` (or change `EMAIL_FROM` vars)
+Worker binding: `EMAIL` (`send_email` in `wrangler.jsonc`).  
+From: `noreply@terrerov.com`.
 
-Until the domain is onboarded, OTP is written to **Workers logs**
-(`[otp-fallback]`) so admins are not locked out.
+**Status on this account (checked via API):**
+
+| Piece | Status |
+|-------|--------|
+| Email **Routing** (inbound MX/SPF/DKIM) | Enabled for `terrerov.com` |
+| Destination `terrerov@gmail.com` | Verified |
+| Email **Sending** (outbound) | **Disabled** (`email.sending_disabled` / 10203) until onboarded |
+
+**Enable outbound (one-time, Dashboard):**
+
+1. Open [Email Sending](https://dash.cloudflare.com/1ddbfa86148b21137f5125cbdd637e8c/email-service/sending)
+2. **Onboard Domain** → `terrerov.com` (adds `cf-bounce` SPF/DKIM/MX + DMARC)
+3. Wait 5–15 minutes for DNS
+4. Test:
+   ```sh
+   npm run cf:email:setup
+   node scripts/setup-cloudflare-email.mjs --test-to terrerov@gmail.com
+   ```
+
+Until Sending is onboarded, OTP codes are written to **Workers Logs**
+(`[otp-fallback]`) so login still works.
 
 ## Deploying to Cloudflare Workers
 
@@ -249,13 +267,21 @@ Served at **`terrerov.com/catandcobra`** as Worker `catabdcobra` (coexists with
 other zone routes via path patterns).
 
 ```sh
-# Prefer OAuth with full scopes for local deploy:
-# (avoid project .env CLOUDFLARE_API_TOKEN if it lacks D1 permissions)
+# Local CLI auth (OAuth). Must NOT have CLOUDFLARE_API_TOKEN set in .env or shell:
+#   unset CLOUDFLARE_API_TOKEN
+#   # or rename it in .env — wrangler loads .env and blocks login otherwise
 npx wrangler login
+npx wrangler whoami
+
 npm run deploy                 # build + wrangler deploy
 npm run db:migrate:remote      # after schema changes
 npx wrangler types             # refresh worker-configuration.d.ts
 ```
+
+**`wrangler login` fails with**  
+`You are logged in with an API Token. Unset the CLOUDFLARE_API_TOKEN...`  
+→ remove/rename `CLOUDFLARE_API_TOKEN` from the project `.env` (or `unset` it),
+then run login again. Keep API tokens only in **GitHub Actions secrets**, not `.env`.
 
 - `base: '/catandcobra'` in `astro.config.mjs`
 - Worker strips prefix, serves `/api/*` via Hono, assets from `dist/`
