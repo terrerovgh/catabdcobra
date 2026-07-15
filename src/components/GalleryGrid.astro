@@ -104,7 +104,7 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
     {locale === 'es' ? 'Cargando…' : 'Loading…'}
   </p>
 
-  <div class="grid grid-cols-2 gap-3 px-5" data-gallery-grid></div>
+  <div class="grid grid-cols-2 gap-3 px-5 sm:grid-cols-3 lg:grid-cols-4" data-gallery-grid></div>
 
   <p data-gallery-empty class="mx-5 mt-4 hidden rounded-2xl border border-line bg-surface p-5 text-center text-sm text-ink-soft">
     <strong class="font-display text-ink">{t.gallery.emptyTitle}</strong>

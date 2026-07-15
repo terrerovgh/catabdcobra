@@ -68,7 +68,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       class="fixed inset-x-0 top-0 z-50 border-b border-line bg-bg/85 backdrop-blur-md"
       style="padding-top: env(safe-area-inset-top)"
     >
-      <div class="mx-auto flex h-14 max-w-md items-center justify-between px-4">
+      <div class="shell mx-auto flex h-14 items-center justify-between px-4">
         <a href={localePath(locale, '/')} class="flex items-center gap-2.5">
           {
             brandInHero ? (
@@ -91,13 +91,13 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     </header>
 
     <main
-      class="mx-auto min-h-dvh max-w-md"
+      class="shell mx-auto min-h-dvh"
       style="padding-top: calc(3.5rem + env(safe-area-inset-top)); padding-bottom: calc(5rem + env(safe-area-inset-bottom))"
     >
       <slot />
     </main>
 
-    <footer class="mx-auto max-w-md px-6 pb-28 pt-4 text-center text-xs text-ink-soft">
+    <footer class="shell mx-auto px-6 pb-28 pt-4 text-center text-xs text-ink-soft">
       <p class="font-display font-semibold">{t.footer.tagline}</p>
       <p class="mt-1">{t.footer.address}</p>
     </footer>

@@ -11,8 +11,14 @@ interface Props {
   artist: Artist;
   locale: Locale;
   id?: string;
+  /**
+   * `deck` — fixed-width swipe card
+   * `grid` — fluid card for multi-column layouts
+   * `responsive` — phone swipe width + fluid from md up
+   */
+  layout?: 'deck' | 'grid' | 'responsive';
 }
-const { artist, locale, id } = Astro.props;
+const { artist, locale, id, layout = 'deck' } = Astro.props;
 const t = useDict(locale);
 const styleNames = artist.styles
   .map((sid) => getStyle(sid)?.name[locale])
@@ -25,7 +31,12 @@ const samplesApi = `${base}/api/public/profile-gallery/${artist.id}`;
 
 <article
   id={id}
-  class="swipe-card relative flex w-72 flex-col overflow-hidden rounded-(--radius-card) border border-line bg-surface p-6 shadow-(--shadow-card)"
+  class:list={[
+    'relative flex flex-col overflow-hidden rounded-(--radius-card) border border-line bg-surface p-6 shadow-(--shadow-card)',
+    layout === 'deck' && 'swipe-card w-72',
+    layout === 'grid' && 'h-full w-full',
+    layout === 'responsive' && 'w-72 shrink-0 snap-center scroll-mt-24 md:h-full md:w-auto',
+  ]}
 >
   <!-- Instagram profile photo (or mascot fallback) -->
   <div class="relative mx-auto grid h-32 w-32 place-items-center">

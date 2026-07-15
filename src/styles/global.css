@@ -127,14 +127,39 @@ nav {
   user-select: none;
 }
 
+/*
+  Responsive shell — phone-first (28rem), widens on tablet/desktop so
+  grids and multi-column layouts can breathe without losing the app feel.
+*/
+.shell {
+  width: 100%;
+  max-width: 28rem; /* ~max-w-md */
+}
+@media (min-width: 768px) {
+  .shell {
+    max-width: 42rem; /* ~max-w-2xl */
+  }
+}
+@media (min-width: 1024px) {
+  .shell {
+    max-width: 56rem; /* ~max-w-4xl */
+  }
+}
+@media (min-width: 1280px) {
+  .shell {
+    max-width: 72rem; /* ~max-w-6xl */
+  }
+}
+
 /* --- Horizontal swipe decks --------------------------------------- */
 .swipe-deck {
   display: flex;
   gap: 1rem;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  padding-inline: max(1.25rem, calc((100vw - 26rem) / 2));
-  scroll-padding-inline: max(1.25rem, calc((100vw - 26rem) / 2));
+  /* Pad relative to the shell, not the viewport — works at every breakpoint */
+  padding-inline: 1.25rem;
+  scroll-padding-inline: 1.25rem;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }

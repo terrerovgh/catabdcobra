@@ -44,11 +44,27 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
     </div>
   </section>
 
-  <!-- about -->
-  <section class="snap-section mt-14 px-6">
+  <!-- about + visit: stacked on phone, side-by-side from lg -->
+  <section class="snap-section mt-14 px-6 lg:grid lg:grid-cols-2 lg:gap-5">
     <div class="rounded-(--radius-card) border border-line bg-surface p-6 shadow-(--shadow-card)">
       <h2 class="font-display text-2xl font-semibold">{t.home.aboutTitle}</h2>
       <p class="mt-3 text-sm leading-relaxed text-ink-soft">{t.home.aboutBody}</p>
+    </div>
+    <div class="mt-5 rounded-(--radius-card) border border-line bg-surface p-6 shadow-(--shadow-card) lg:mt-0">
+      <h2 class="font-display text-2xl font-semibold">{t.home.visitTitle}</h2>
+      <p class="mt-2 text-sm text-ink-soft">{t.home.visitBody}</p>
+      <a
+        href="https://maps.google.com/?q=301+Washington+St+SE,+Albuquerque,+NM+87108"
+        target="_blank"
+        rel="noopener"
+        class="mt-3 flex items-center gap-2 text-sm font-bold text-accent-strong"
+      >
+        <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 21 C8 16.5 5.5 13 5.5 9.8 A6.5 6.5 0 0 1 18.5 9.8 C18.5 13 16 16.5 12 21 Z"></path>
+          <circle cx="12" cy="9.8" r="2.3"></circle>
+        </svg>
+        {t.home.address}
+      </a>
     </div>
   </section>
 
@@ -117,7 +133,7 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
       <h2 class="font-display text-2xl font-semibold">{t.home.workTitle}</h2>
       <p class="mt-1 text-sm text-ink-soft">{t.home.workSub}</p>
     </div>
-    <div class="mt-4 grid grid-cols-2 gap-3 px-5 sm:grid-cols-4" data-home-featured-grid></div>
+    <div class="mt-4 grid grid-cols-2 gap-3 px-5 sm:grid-cols-3 lg:grid-cols-4" data-home-featured-grid></div>
     <div class="mt-5 px-6">
       <a
         href={localePath(locale, '/gallery')}
@@ -195,32 +211,12 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
     document.addEventListener('astro:page-load', initHomeFeatured);
   </script>
 
-  <!-- visit -->
-  <section class="snap-section mt-14 px-6">
-    <div class="rounded-(--radius-card) border border-line bg-surface p-6 shadow-(--shadow-card)">
-      <h2 class="font-display text-2xl font-semibold">{t.home.visitTitle}</h2>
-      <p class="mt-2 text-sm text-ink-soft">{t.home.visitBody}</p>
-      <a
-        href="https://maps.google.com/?q=301+Washington+St+SE,+Albuquerque,+NM+87108"
-        target="_blank"
-        rel="noopener"
-        class="mt-3 flex items-center gap-2 text-sm font-bold text-accent-strong"
-      >
-        <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M12 21 C8 16.5 5.5 13 5.5 9.8 A6.5 6.5 0 0 1 18.5 9.8 C18.5 13 16 16.5 12 21 Z"></path>
-          <circle cx="12" cy="9.8" r="2.3"></circle>
-        </svg>
-        {t.home.address}
-      </a>
-    </div>
-  </section>
-
   <!-- CTA -->
   <section class="snap-section mt-14 px-6">
-    <div class="relative overflow-hidden rounded-(--radius-card) bg-accent p-6 text-charcoal shadow-(--shadow-float)">
-      <div class="relative z-10 max-w-[60%]">
-        <h2 class="font-display text-2xl font-semibold">{t.home.ctaTitle}</h2>
-        <p class="mt-2 text-sm font-medium opacity-80">{t.home.ctaBody}</p>
+    <div class="relative overflow-hidden rounded-(--radius-card) bg-accent p-6 text-charcoal shadow-(--shadow-float) md:p-8">
+      <div class="relative z-10 max-w-[60%] md:max-w-[55%]">
+        <h2 class="font-display text-2xl font-semibold md:text-3xl">{t.home.ctaTitle}</h2>
+        <p class="mt-2 text-sm font-medium opacity-80 md:text-base">{t.home.ctaBody}</p>
         <a
           href={localePath(locale, '/booking')}
           class="mt-4 inline-block rounded-full bg-charcoal px-6 py-2.5 font-display text-sm font-semibold text-cream transition-transform active:scale-[0.98]"
@@ -228,7 +224,7 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
           {t.common.bookNow}
         </a>
       </div>
-      <Cat class="absolute -right-8 -bottom-4 w-48 opacity-90" />
+      <Cat class="absolute -right-8 -bottom-4 w-48 opacity-90 md:right-4 md:bottom-0 md:w-56" />
     </div>
   </section>
 </AppLayout>

@@ -1,6 +1,5 @@
 ---
 import AppLayout from '../../layouts/AppLayout.astro';
-import SwipeDeck from '../SwipeDeck.astro';
 import ArtistCard from '../ArtistCard.astro';
 import { artists } from '../../data/artists';
 import { useDict, type Locale } from '../../i18n';
@@ -18,8 +17,34 @@ const t = useDict(locale);
       <h1 class="font-display text-3xl font-semibold">{t.artists.title}</h1>
       <p class="mt-1 text-sm text-ink-soft">{t.artists.sub}</p>
     </div>
-    <SwipeDeck class="mt-2">
-      {artists.map((artist) => <ArtistCard id={artist.id} artist={artist} locale={locale} />)}
-    </SwipeDeck>
+    <!--
+      Phone: horizontal snap-scroll row (same feel as SwipeDeck).
+      Tablet+: multi-column grid. Single DOM so #artist ids stay unique.
+    -->
+    <div
+      class="artists-rail mt-2 flex gap-4 overflow-x-auto px-5 py-4 md:mt-6 md:grid md:grid-cols-2 md:gap-5 md:overflow-visible md:px-6 md:py-0 xl:grid-cols-3"
+    >
+      {
+        artists.map((artist) => (
+          <ArtistCard id={artist.id} artist={artist} locale={locale} layout="responsive" />
+        ))
+      }
+    </div>
   </section>
 </AppLayout>
+
+<style>
+  .artists-rail {
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .artists-rail::-webkit-scrollbar {
+    display: none;
+  }
+  @media (min-width: 768px) {
+    .artists-rail {
+      scroll-snap-type: none;
+    }
+  }
+</style>
