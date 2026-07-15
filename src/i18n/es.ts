@@ -72,6 +72,10 @@ export const es: Dict = {
     emptyBody:
       'Prueba otro estilo, artista o diseño — o mira Instagram para lo más reciente.',
     placeholderAlt: 'Foto de tatuaje muy pronto',
+    close: 'Cerrar',
+    prev: 'Anterior',
+    next: 'Siguiente',
+    zoom: 'Ampliar',
   },
   aftercare: {
     title: 'Cuidados',

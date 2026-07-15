@@ -70,6 +70,10 @@ export const en = {
     emptyBody:
       'Try another style, artist, or design — or check Instagram for the newest drops.',
     placeholderAlt: 'Tattoo photo coming soon',
+    close: 'Close',
+    prev: 'Previous',
+    next: 'Next',
+    zoom: 'View larger',
   },
   aftercare: {
     title: 'Aftercare',

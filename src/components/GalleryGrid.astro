@@ -39,46 +39,66 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
     artists: artistLabels,
     fresh: t.gallery.fresh,
     healed: t.gallery.healed,
+    zoom: t.gallery.zoom,
     emptyTitle: t.gallery.emptyTitle,
     emptyBody: t.gallery.emptyBody,
     loading: locale === 'es' ? 'Cargando…' : 'Loading…',
   })}
 >
+  <!-- filter bar: labelled rows of ghost chips, sticky under the header -->
   {
-    showStyleFilter && (
-      <div class="swipe-deck !gap-2 !px-5 pb-2" role="group" aria-label={t.gallery.filterStyle} data-style-chips>
-        <button type="button" class="chip active" data-filter-style="all">
-          {t.gallery.all}
-        </button>
-        {styles.map((s) => (
-          <button type="button" class="chip" data-filter-style={s.id}>
-            {s.name[locale]}
-          </button>
-        ))}
+    (showStyleFilter || showArtistFilter) && (
+      <div
+        class="sticky z-40 mb-4 border-b border-line bg-bg/85 py-2.5 backdrop-blur-md"
+        style="top: calc(3.5rem + env(safe-area-inset-top))"
+      >
+        {showStyleFilter && (
+          <div class="filter-line" role="group" aria-label={t.gallery.filterStyle} data-style-chips>
+            <span class="filter-label" aria-hidden="true">
+              {t.gallery.filterStyle}
+            </span>
+            <div class="filter-scroll">
+              <button type="button" class="fchip active" data-filter-style="all">
+                {t.gallery.all}
+              </button>
+              {styles.map((s) => (
+                <button type="button" class="fchip" data-filter-style={s.id}>
+                  {s.name[locale]}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        {showArtistFilter && (
+          <div class="filter-line mt-1.5" role="group" aria-label={t.gallery.filterArtist} data-artist-chips>
+            <span class="filter-label" aria-hidden="true">
+              {t.gallery.filterArtist}
+            </span>
+            <div class="filter-scroll">
+              <button type="button" class="fchip active" data-filter-artist="all">
+                {t.gallery.all}
+              </button>
+              {artists.map((a) => (
+                <button type="button" class="fchip" data-filter-artist={a.id}>
+                  {a.handle}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        <div class="filter-line mt-1.5 hidden" role="group" aria-label={t.gallery.filterDesign} data-design-line>
+          <span class="filter-label" aria-hidden="true">
+            {t.gallery.filterDesign}
+          </span>
+          <div class="filter-scroll" data-design-chips>
+            <button type="button" class="fchip active" data-filter-design="all">
+              {t.gallery.all}
+            </button>
+          </div>
+        </div>
       </div>
     )
   }
-
-  {
-    showArtistFilter && (
-      <div class="swipe-deck !gap-2 !px-5 pb-2" role="group" aria-label={t.gallery.filterArtist} data-artist-chips>
-        <button type="button" class="chip active" data-filter-artist="all">
-          {t.gallery.all}
-        </button>
-        {artists.map((a) => (
-          <button type="button" class="chip" data-filter-artist={a.id}>
-            {a.handle}
-          </button>
-        ))}
-      </div>
-    )
-  }
-
-  <div class="swipe-deck !gap-2 !px-5 pb-4 hidden" role="group" aria-label={t.gallery.filterDesign} data-design-chips>
-    <button type="button" class="chip active" data-filter-design="all">
-      {t.gallery.all}
-    </button>
-  </div>
 
   <p data-gallery-loading class="mx-5 rounded-2xl border border-line bg-surface p-5 text-center text-sm text-ink-soft">
     {locale === 'es' ? 'Cargando…' : 'Loading…'}
@@ -91,28 +111,187 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
     <br />
     {t.gallery.emptyBody}
   </p>
+
+  <!-- fullscreen lightbox: swipe / arrows / keyboard to navigate -->
+  <div data-lightbox class="lb" role="dialog" aria-modal="true" aria-label={t.gallery.title}>
+    <button
+      type="button"
+      class="lb-btn absolute right-4 z-10"
+      style="top: calc(env(safe-area-inset-top) + 0.9rem)"
+      data-lb-close
+      aria-label={t.gallery.close}
+    >
+      <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M6 6l12 12M18 6L6 18" />
+      </svg>
+    </button>
+
+    <div class="flex min-h-0 flex-1 items-center justify-center px-3" data-lb-stage>
+      <img data-lb-img class="max-h-full max-w-full rounded-xl object-contain" alt="" />
+    </div>
+
+    <button type="button" class="lb-btn lb-nav left-3" data-lb-prev aria-label={t.gallery.prev}>
+      <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 5l-7 7 7 7" />
+      </svg>
+    </button>
+    <button type="button" class="lb-btn lb-nav right-3" data-lb-next aria-label={t.gallery.next}>
+      <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+
+    <div class="px-6 pt-3 text-center" style="padding-bottom: calc(env(safe-area-inset-bottom) + 1.25rem)">
+      <p class="text-sm">
+        <span data-lb-style class="font-display font-semibold"></span>
+        <span class="opacity-50"> · </span>
+        <span data-lb-artist class="opacity-70"></span>
+      </p>
+      <div
+        data-lb-variants
+        class="mx-auto mt-3 hidden w-44 rounded-full border border-white/20 bg-white/10 p-0.5 text-[0.65rem] font-bold"
+      >
+        <button type="button" class="seg active flex-1 rounded-full py-1" data-lb-variant="fresh">
+          {t.gallery.fresh}
+        </button>
+        <button type="button" class="seg flex-1 rounded-full py-1" data-lb-variant="healed">
+          {t.gallery.healed}
+        </button>
+      </div>
+      <p data-lb-count class="mt-2 text-[0.7rem] tracking-widest opacity-50"></p>
+    </div>
+  </div>
 </div>
 
-<style>
-  .chip {
-    flex: 0 0 auto;
-    scroll-snap-align: start;
-    border: 1px solid var(--line);
-    background: var(--surface);
-    border-radius: 999px;
-    padding: 0.4rem 0.85rem;
-    font-size: 0.75rem;
+{/* global: cards and design chips are injected client-side, so scoped styles would miss them */}
+<style is:global>
+  /* --- filter bar ---------------------------------------------------- */
+  [data-gallery] .filter-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-left: 1.25rem;
+  }
+  [data-gallery] .filter-line.hidden {
+    display: none;
+  }
+  [data-gallery] .filter-label {
+    flex: 0 0 3.4rem;
+    font-size: 0.6rem;
     font-weight: 700;
-    transition: all 200ms ease;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-soft);
   }
-  .chip.active {
+  [data-gallery] .filter-scroll {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-right: 1.25rem;
+    mask-image: linear-gradient(to right, transparent, black 10px, black calc(100% - 24px), transparent);
+  }
+  [data-gallery] .filter-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  [data-gallery] .fchip {
+    flex: 0 0 auto;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    transition:
+      color 180ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease;
+  }
+  [data-gallery] .fchip.active {
+    color: var(--accent-strong);
+    background: color-mix(in srgb, var(--accent) 13%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+  }
+
+  [data-gallery] .gallery-card {
+    position: relative;
+  }
+  [data-gallery] .seg.active {
     background: var(--accent);
-    border-color: transparent;
     color: #26231f;
   }
-  .seg.active {
-    background: var(--accent);
+
+  /* --- lightbox ------------------------------------------------------ */
+  [data-gallery] .lb {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: none;
+    flex-direction: column;
+    background: rgb(22 20 17 / 0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: #f0e7c9;
+    padding-top: calc(env(safe-area-inset-top) + 3.2rem);
+  }
+  [data-gallery] .lb.open {
+    display: flex;
+    animation: lb-in 220ms ease both;
+  }
+  @keyframes lb-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  [data-gallery] .lb img {
+    transition: opacity 200ms ease;
+    box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.7);
+  }
+  [data-gallery] .lb-btn {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    border: 1px solid rgb(240 231 201 / 0.18);
+    background: rgb(240 231 201 / 0.08);
+    color: #f0e7c9;
+    backdrop-filter: blur(6px);
+    transition: background-color 160ms ease;
+  }
+  [data-gallery] .lb-btn:active {
+    background: rgb(240 231 201 / 0.2);
+  }
+  [data-gallery] .lb-nav {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+  }
+  [data-gallery] .lb-nav.hidden {
+    display: none;
+  }
+  [data-gallery] .lb .seg {
+    color: rgb(240 231 201 / 0.75);
+  }
+  [data-gallery] .lb .seg.active {
     color: #26231f;
+  }
+  [data-gallery] [data-lb-variants] {
+    display: none;
+  }
+  [data-gallery] [data-lb-variants].show {
+    display: flex;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-gallery] .lb.open {
+      animation: none;
+    }
+    [data-gallery] .lb img {
+      transition: none;
+    }
   }
 </style>
 
@@ -143,6 +322,7 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
       artists: Record<string, string>;
       fresh: string;
       healed: string;
+      zoom: string;
       emptyTitle: string;
       emptyBody: string;
     };
@@ -157,6 +337,7 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
     const grid = root.querySelector<HTMLElement>('[data-gallery-grid]')!;
     const loadingEl = root.querySelector<HTMLElement>('[data-gallery-loading]');
     const emptyEl = root.querySelector<HTMLElement>('[data-gallery-empty]');
+    const designLine = root.querySelector<HTMLElement>('[data-design-line]');
     const designChips = root.querySelector<HTMLElement>('[data-design-chips]');
 
     const applyFilters = () => {
@@ -184,16 +365,15 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
 
       // Design chips from data
       const usedDesigns = new Set(items.map((i) => i.design_id).filter(Boolean) as string[]);
-      if (designChips && usedDesigns.size) {
-        designChips.classList.remove('hidden');
-        // keep "all" button, append design chips
+      if (designLine && designChips && usedDesigns.size) {
+        designLine.classList.remove('hidden');
         const allBtn = designChips.querySelector('[data-filter-design="all"]');
         designChips.innerHTML = '';
         if (allBtn) designChips.appendChild(allBtn);
         else {
           const b = document.createElement('button');
           b.type = 'button';
-          b.className = 'chip active';
+          b.className = 'fchip active';
           b.dataset.filterDesign = 'all';
           b.textContent = locale === 'es' ? 'Todos' : 'All';
           designChips.appendChild(b);
@@ -201,7 +381,7 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
         for (const id of usedDesigns) {
           const b = document.createElement('button');
           b.type = 'button';
-          b.className = 'chip';
+          b.className = 'fchip';
           b.dataset.filterDesign = id;
           b.textContent = labels.designs[id] || id;
           designChips.appendChild(b);
@@ -240,26 +420,32 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
         fig.dataset.style = styleId;
         fig.dataset.artist = artistId;
         fig.dataset.design = designId;
+        fig.dataset.photo = '';
 
         fig.innerHTML = `
-          <div class="relative aspect-square">
+          <button type="button" class="relative block aspect-square w-full cursor-zoom-in" data-lb-open
+            aria-label="${escapeHtml(labels.zoom || 'View larger')}">
             <img src="${primary.url}" alt="${escapeHtml(alt)}" width="640" height="640"
               class="variant-fresh absolute inset-0 h-full w-full object-cover" loading="lazy" />
             ${
               both && secondary
                 ? `<img src="${secondary.url}" alt="${escapeHtml(alt)} (${labels.healed})" width="640" height="640"
-                  class="variant-healed absolute inset-0 h-full w-full object-cover hidden" loading="lazy" />
-                <div class="absolute right-2 bottom-2 left-2 flex rounded-full border border-line bg-bg/85 p-0.5 text-[0.65rem] font-bold backdrop-blur-sm">
-                  <button type="button" class="seg active flex-1 rounded-full py-1" data-variant="fresh">${labels.fresh}</button>
-                  <button type="button" class="seg flex-1 rounded-full py-1" data-variant="healed">${labels.healed}</button>
-                </div>`
+                  class="variant-healed absolute inset-0 h-full w-full object-cover hidden" loading="lazy" />`
                 : ''
             }
-          </div>
+          </button>
+          ${
+            both
+              ? `<div class="pointer-events-none absolute right-2 bottom-12 left-2 flex rounded-full border border-line bg-bg/85 p-0.5 text-[0.65rem] font-bold backdrop-blur-sm">
+                  <button type="button" class="seg active pointer-events-auto flex-1 rounded-full py-1" data-variant="fresh">${labels.fresh}</button>
+                  <button type="button" class="seg pointer-events-auto flex-1 rounded-full py-1" data-variant="healed">${labels.healed}</button>
+                </div>`
+              : ''
+          }
           <figcaption class="flex flex-col gap-0.5 p-2.5 text-xs">
             <div class="flex items-center justify-between gap-1">
-              <span class="font-display font-semibold">${escapeHtml(styleName)}</span>
-              <span class="text-ink-soft">${escapeHtml(artistName)}</span>
+              <span class="caption-style font-display font-semibold">${escapeHtml(styleName)}</span>
+              <span class="caption-artist text-ink-soft">${escapeHtml(artistName)}</span>
             </div>
             ${
               designId && designId !== 'other' && designName
@@ -282,9 +468,100 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
         .replace(/"/g, '&quot;');
     }
 
+    /* ---------- lightbox ---------- */
+    type Variant = 'fresh' | 'healed';
+    const lb = root.querySelector<HTMLElement>('[data-lightbox]')!;
+    const lbImg = lb.querySelector<HTMLImageElement>('[data-lb-img]')!;
+    const lbStyle = lb.querySelector<HTMLElement>('[data-lb-style]')!;
+    const lbArtist = lb.querySelector<HTMLElement>('[data-lb-artist]')!;
+    const lbCount = lb.querySelector<HTMLElement>('[data-lb-count]')!;
+    const lbVariants = lb.querySelector<HTMLElement>('[data-lb-variants]')!;
+
+    let lbItems: HTMLElement[] = [];
+    let lbIndex = 0;
+    let lbVariant: Variant = 'fresh';
+
+    const cardImg = (card: HTMLElement, v: Variant) =>
+      card.querySelector<HTMLImageElement>(`img.variant-${v}`);
+
+    const syncCardVariant = (card: HTMLElement, v: Variant) => {
+      cardImg(card, 'fresh')?.classList.toggle('hidden', v !== 'fresh');
+      cardImg(card, 'healed')?.classList.toggle('hidden', v !== 'healed');
+      card
+        .querySelectorAll<HTMLElement>('.seg[data-variant]')
+        .forEach((s) => s.classList.toggle('active', s.dataset.variant === v));
+    };
+
+    const renderLb = (fade = true) => {
+      const card = lbItems[lbIndex];
+      if (!card) return;
+      const hasFresh = !!cardImg(card, 'fresh');
+      const hasHealed = !!cardImg(card, 'healed');
+      if ((lbVariant === 'fresh' && !hasFresh) || (lbVariant === 'healed' && !hasHealed))
+        lbVariant = hasFresh ? 'fresh' : 'healed';
+      const img = cardImg(card, lbVariant)!;
+
+      if (fade) lbImg.style.opacity = '0';
+      lbImg.onload = () => (lbImg.style.opacity = '1');
+      lbImg.src = img.currentSrc || img.src;
+      lbImg.alt = img.alt;
+      if (lbImg.complete) lbImg.style.opacity = '1';
+
+      lbStyle.textContent = card.querySelector('.caption-style')?.textContent?.trim() ?? '';
+      lbArtist.textContent = card.querySelector('.caption-artist')?.textContent?.trim() ?? '';
+      lbCount.textContent = lbItems.length > 1 ? `${lbIndex + 1} / ${lbItems.length}` : '';
+
+      lbVariants.classList.toggle('show', hasFresh && hasHealed);
+      lbVariants
+        .querySelectorAll<HTMLElement>('[data-lb-variant]')
+        .forEach((s) => s.classList.toggle('active', s.dataset.lbVariant === lbVariant));
+
+      const nav = lbItems.length > 1;
+      lb.querySelectorAll<HTMLElement>('.lb-nav').forEach((b) => b.classList.toggle('hidden', !nav));
+    };
+
+    const openLb = (card: HTMLElement) => {
+      lbItems = [...root.querySelectorAll<HTMLElement>('.gallery-card[data-photo]:not(.hidden)')];
+      lbIndex = Math.max(0, lbItems.indexOf(card));
+      lbVariant = cardImg(card, 'fresh')?.classList.contains('hidden') ? 'healed' : 'fresh';
+      renderLb(false);
+      lb.classList.add('open');
+      document.documentElement.style.overflow = 'hidden';
+      lb.querySelector<HTMLElement>('[data-lb-close]')?.focus();
+    };
+
+    const closeLb = () => {
+      lb.classList.remove('open');
+      document.documentElement.style.overflow = '';
+    };
+
+    const stepLb = (dir: number) => {
+      if (lbItems.length < 2) return;
+      lbIndex = (lbIndex + dir + lbItems.length) % lbItems.length;
+      renderLb();
+    };
+
+    /* ---------- events ---------- */
     root.addEventListener('click', (event) => {
       const el = event.target as HTMLElement;
 
+      // lightbox controls
+      if (el.closest('[data-lb-close]')) return closeLb();
+      if (el.closest('[data-lb-prev]')) return stepLb(-1);
+      if (el.closest('[data-lb-next]')) return stepLb(1);
+      const lbSeg = el.closest<HTMLElement>('[data-lb-variant]');
+      if (lbSeg) {
+        lbVariant = lbSeg.dataset.lbVariant as Variant;
+        renderLb();
+        const card = lbItems[lbIndex];
+        if (card) syncCardVariant(card, lbVariant);
+        return;
+      }
+      // tap on the dimmed area (not the image) closes
+      if (lb.classList.contains('open') && (el === lb || el.dataset.lbStage !== undefined))
+        return closeLb();
+
+      // filter chips
       const styleChip = el.closest<HTMLElement>('[data-filter-style]');
       const artistChip = el.closest<HTMLElement>('[data-filter-artist]');
       const designChip = el.closest<HTMLElement>('[data-filter-design]');
@@ -298,23 +575,70 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
             : 'data-filter-design';
         state[key as 'style' | 'artist' | 'design'] = chip.getAttribute(attr)!;
         chip.parentElement
-          ?.querySelectorAll('.chip')
+          ?.querySelectorAll('.fchip')
           .forEach((c) => c.classList.toggle('active', c === chip));
         applyFilters();
         return;
       }
 
+      // fresh/healed toggle on a card
       const seg = el.closest<HTMLElement>('.seg[data-variant]');
       if (seg) {
         const card = seg.closest<HTMLElement>('.gallery-card');
-        if (!card) return;
-        const variant = seg.dataset.variant;
-        card.querySelector('.variant-fresh')?.classList.toggle('hidden', variant !== 'fresh');
-        card.querySelector('.variant-healed')?.classList.toggle('hidden', variant !== 'healed');
-        card.querySelectorAll('.seg').forEach((s) => s.classList.toggle('active', s === seg));
+        if (card) syncCardVariant(card, seg.dataset.variant as Variant);
+        return;
       }
+
+      // tap on a photo opens the lightbox
+      const opener = el.closest<HTMLElement>('[data-lb-open]');
+      const photoCard = opener?.closest<HTMLElement>('.gallery-card[data-photo]');
+      if (photoCard) openLb(photoCard);
     });
 
+    // keyboard: Esc closes, arrows navigate (scoped to this page visit)
+    const ac = new AbortController();
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        if (!lb.classList.contains('open')) return;
+        if (event.key === 'Escape') closeLb();
+        else if (event.key === 'ArrowLeft') stepLb(-1);
+        else if (event.key === 'ArrowRight') stepLb(1);
+      },
+      { signal: ac.signal },
+    );
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        closeLb();
+        ac.abort();
+      },
+      { once: true },
+    );
+
+    // touch: horizontal swipe navigates, downward swipe closes
+    let touchX = 0;
+    let touchY = 0;
+    lb.addEventListener(
+      'touchstart',
+      (event) => {
+        touchX = event.touches[0]!.clientX;
+        touchY = event.touches[0]!.clientY;
+      },
+      { passive: true },
+    );
+    lb.addEventListener(
+      'touchend',
+      (event) => {
+        const dx = event.changedTouches[0]!.clientX - touchX;
+        const dy = event.changedTouches[0]!.clientY - touchY;
+        if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) stepLb(dx < 0 ? 1 : -1);
+        else if (dy > 72 && Math.abs(dy) > Math.abs(dx) * 1.5) closeLb();
+      },
+      { passive: true },
+    );
+
+    // deep-link filters via hash (e.g. #artist=doomkitten or #style=horror)
     const hash = location.hash.replace(/^#/, '');
     if (hash) {
       const params = new URLSearchParams(hash.includes('=') ? hash : `artist=${hash}`);
@@ -325,7 +649,7 @@ const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
         const chip = root.querySelector<HTMLElement>(`[data-filter-${key}="${val}"]`);
         if (chip) {
           chip.parentElement
-            ?.querySelectorAll('.chip')
+            ?.querySelectorAll('.fchip')
             .forEach((c) => c.classList.toggle('active', c === chip));
         }
       }

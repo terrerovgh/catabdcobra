@@ -2,15 +2,32 @@
 /**
  * Horizontal snap-scrolling card deck with page dots.
  * Cards go in the slot with class="swipe-card".
+ *
+ * `autoplay` advances to the next card on an interval and loops forever.
+ * Pauses while the user interacts; respects prefers-reduced-motion.
  */
 interface Props {
   class?: string;
   depth?: boolean;
+  /** Auto-advance cards in a loop. */
+  autoplay?: boolean;
+  /** Seconds between card advances (autoplay only). Default 3.5. */
+  interval?: number;
 }
-const { class: className = '', depth = true } = Astro.props;
+const {
+  class: className = '',
+  depth = true,
+  autoplay = false,
+  interval = 3.5,
+} = Astro.props;
 ---
 
-<div class={`swipe-deck-wrap ${className}`} data-swipe-deck>
+<div
+  class={`swipe-deck-wrap ${className}`}
+  data-swipe-deck
+  data-autoplay={autoplay ? '' : undefined}
+  data-interval={autoplay ? String(interval) : undefined}
+>
   <div class="swipe-deck py-4" data-depth={depth ? '' : undefined}>
     <slot />
   </div>
@@ -32,6 +49,10 @@ const { class: className = '', depth = true } = Astro.props;
 </style>
 
 <script>
+  function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
   function initDecks() {
     document.querySelectorAll<HTMLElement>('[data-swipe-deck]').forEach((wrap) => {
       if (wrap.dataset.init) return;
@@ -41,9 +62,10 @@ const { class: className = '', depth = true } = Astro.props;
       const dotsBox = wrap.querySelector<HTMLElement>('.deck-dots');
       if (!deck || !dotsBox) return;
 
-      const cards = [...deck.querySelectorAll<HTMLElement>('.swipe-card')];
+      const cards = [...deck.querySelectorAll<HTMLElement>(':scope > .swipe-card')];
       if (cards.length < 2) return;
 
+      // Dots
       dotsBox.innerHTML = '';
       const dots = cards.map((_, i) => {
         const d = document.createElement('span');
@@ -52,29 +74,118 @@ const { class: className = '', depth = true } = Astro.props;
         return d;
       });
 
+      const setActiveDot = (index: number) => {
+        dots.forEach((d, i) => d.classList.toggle('active', i === index));
+      };
+
+      const nearestIndex = () => {
+        const center = deck.scrollLeft + deck.clientWidth / 2;
+        let best = 0;
+        let bestDist = Infinity;
+        cards.forEach((card, i) => {
+          const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+          const dist = Math.abs(cardCenter - center);
+          if (dist < bestDist) {
+            bestDist = dist;
+            best = i;
+          }
+        });
+        return best;
+      };
+
+      const goTo = (index: number, smooth = true) => {
+        const card = cards[((index % cards.length) + cards.length) % cards.length];
+        if (!card) return;
+        // Center the card in the deck viewport
+        const left = card.offsetLeft - (deck.clientWidth - card.offsetWidth) / 2;
+        deck.scrollTo({
+          left: Math.max(0, left),
+          behavior: smooth && !prefersReducedMotion() ? 'smooth' : 'auto',
+        });
+        setActiveDot(((index % cards.length) + cards.length) % cards.length);
+      };
+
       let raf = 0;
       deck.addEventListener(
         'scroll',
         () => {
           cancelAnimationFrame(raf);
-          raf = requestAnimationFrame(() => {
-            const center = deck.scrollLeft + deck.clientWidth / 2;
-            let best = 0;
-            let bestDist = Infinity;
-            cards.forEach((card, i) => {
-              const cardCenter = card.offsetLeft + card.offsetWidth / 2;
-              const dist = Math.abs(cardCenter - center);
-              if (dist < bestDist) {
-                bestDist = dist;
-                best = i;
-              }
-            });
-            dots.forEach((d, i) => d.classList.toggle('active', i === best));
-          });
+          raf = requestAnimationFrame(() => setActiveDot(nearestIndex()));
         },
         { passive: true },
       );
+
+      // --- Autoplay: step to next card on an interval ---
+      if (!wrap.hasAttribute('data-autoplay') || prefersReducedMotion()) return;
+
+      const intervalMs = Math.max(1.5, Number(wrap.dataset.interval || '3.5') || 3.5) * 1000;
+      let timer = 0;
+      let paused = false;
+      let visible = true;
+
+      const clear = () => {
+        if (timer) {
+          window.clearInterval(timer);
+          timer = 0;
+        }
+      };
+
+      const tick = () => {
+        if (paused || !visible) return;
+        const next = (nearestIndex() + 1) % cards.length;
+        goTo(next, true);
+      };
+
+      const start = () => {
+        clear();
+        if (paused || !visible || prefersReducedMotion()) return;
+        timer = window.setInterval(tick, intervalMs);
+      };
+
+      const pause = () => {
+        paused = true;
+        clear();
+      };
+      const resume = () => {
+        paused = false;
+        start();
+      };
+
+      // Pause while user interacts; resume after idle
+      let idleTimer = 0;
+      const bumpIdle = () => {
+        pause();
+        window.clearTimeout(idleTimer);
+        idleTimer = window.setTimeout(resume, 2200);
+      };
+
+      deck.addEventListener('pointerdown', bumpIdle, { passive: true });
+      deck.addEventListener('touchstart', bumpIdle, { passive: true });
+      deck.addEventListener('wheel', bumpIdle, { passive: true });
+      wrap.addEventListener('pointerenter', pause);
+      wrap.addEventListener('pointerleave', resume);
+      wrap.addEventListener('focusin', pause);
+      wrap.addEventListener('focusout', (e) => {
+        if (!wrap.contains((e as FocusEvent).relatedTarget as Node | null)) resume();
+      });
+
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          ([entry]) => {
+            visible = Boolean(entry?.isIntersecting);
+            if (visible) start();
+            else clear();
+          },
+          { threshold: 0.2 },
+        );
+        io.observe(wrap);
+      }
+
+      // Start centered on first card, then autoplay
+      goTo(0, false);
+      start();
     });
   }
+
   document.addEventListener('astro:page-load', initDecks);
 </script>
