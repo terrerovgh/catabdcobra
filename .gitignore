@@ -4,3 +4,15 @@ dist/
 .wrangler/
 npm-debug.log*
 .DS_Store
+
+.env
+.env.local
+.env.*.local
+.dev.vars
+
+# Generated hardlinks/copies of gallery originals for admin (rebuilt by gallery:index)
+public/gallery/
+
+# Local caches / secrets
+scripts/.ig-captions-cache.json
+.dev.vars

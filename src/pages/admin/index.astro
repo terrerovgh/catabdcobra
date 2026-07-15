@@ -1,0 +1,66 @@
+---
+import '../../styles/global.css';
+import '../../admin/styles.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<!doctype html>
+<html lang="en" data-theme="cat">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="theme-color" content="#f0e7c9" />
+    <link rel="icon" type="image/png" href={`${base}/favicon.png`} />
+    <title>Admin · Cat & Cobra</title>
+    <style is:inline>
+      /* Visible before JS boots — avoids a pure white screen */
+      #admin-boot {
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        font-family: system-ui, sans-serif;
+        color: #57462f;
+        background: #f0e7c9;
+        margin: 0;
+      }
+      #admin-boot p {
+        margin: 0;
+        opacity: 0.75;
+      }
+      #admin-root:not(:empty) + #admin-boot,
+      #admin-root:not(:empty) ~ #admin-boot {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="admin-root" style="margin:0">
+    <div id="admin-root"></div>
+    <div id="admin-boot" aria-live="polite">
+      <p>Cargando administración…</p>
+    </div>
+    <script>
+      import { createElement } from 'react';
+      import { createRoot } from 'react-dom/client';
+      import AdminApp from '../../admin/App';
+
+      const el = document.getElementById('admin-root');
+      const boot = document.getElementById('admin-boot');
+      if (!el) {
+        if (boot) boot.textContent = 'Admin mount point missing.';
+      } else {
+        try {
+          createRoot(el).render(createElement(AdminApp));
+          if (boot) boot.remove();
+        } catch (err) {
+          console.error('[admin] failed to mount', err);
+          if (boot) {
+            boot.innerHTML =
+              '<p style="color:#b42318;max-width:28rem;padding:1rem;text-align:center">Failed to start admin. Open the browser console for details.</p>';
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

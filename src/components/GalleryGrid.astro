@@ -1,150 +1,110 @@
 ---
-import { Image } from 'astro:assets';
-import { gallery } from '../data/gallery';
 import { artists } from '../data/artists';
-import { styles, getStyle } from '../data/styles';
+import { styles } from '../data/styles';
+import { designs } from '../data/designs';
 import { useDict, type Locale } from '../i18n';
-import Cat from './characters/Cat.astro';
-import Cobra from './characters/Cobra.astro';
 
 interface Props {
   locale: Locale;
+  /** Optional: lock filters when embedding on an artist page. */
+  artistId?: string;
+  styleId?: string;
 }
-const { locale } = Astro.props;
+const { locale, artistId, styleId } = Astro.props;
 const t = useDict(locale);
 
-/* Illustrated placeholders keep the grid (and filters) alive until real
-   photos land in src/assets/gallery/ — one per style, round-robin artists. */
-const placeholders =
-  gallery.length > 0
-    ? []
-    : styles.map((style, i) => ({
-        style,
-        artist: artists.find((a) => a.styles.includes(style.id)) ?? artists[i % artists.length]!,
-      }));
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const apiUrl = artistId
+  ? `${base}/api/public/profile-gallery/${artistId}`
+  : `${base}/api/public/gallery`;
+
+const showArtistFilter = !artistId;
+const showStyleFilter = !styleId;
+
+const styleLabels = Object.fromEntries(styles.map((s) => [s.id, s.name[locale]]));
+const designLabels = Object.fromEntries(designs.map((d) => [d.id, d.name[locale]]));
+const artistLabels = Object.fromEntries(artists.map((a) => [a.id, a.handle]));
 ---
 
-<div data-gallery>
-  <!-- filter bar: two labelled rows of ghost chips, sticky under the header -->
-  <div
-    class="sticky z-40 mb-4 border-b border-line bg-bg/85 py-2.5 backdrop-blur-md"
-    style="top: calc(3.5rem + env(safe-area-inset-top))"
-  >
-    <div class="filter-line" role="group" aria-label={t.gallery.filterStyle}>
-      <span class="filter-label" aria-hidden="true">{t.gallery.filterStyle}</span>
-      <div class="filter-scroll">
-        <button type="button" class="fchip active" data-filter-style="all">{t.gallery.all}</button>
-        {
-          styles.map((s) => (
-            <button type="button" class="fchip" data-filter-style={s.id}>
-              {s.name[locale]}
-            </button>
-          ))
-        }
-      </div>
-    </div>
-    <div class="filter-line mt-1.5" role="group" aria-label={t.gallery.filterArtist}>
-      <span class="filter-label" aria-hidden="true">{t.gallery.filterArtist}</span>
-      <div class="filter-scroll">
-        <button type="button" class="fchip active" data-filter-artist="all">{t.gallery.all}</button>
-        {
-          artists.map((a) => (
-            <button type="button" class="fchip" data-filter-artist={a.id}>
-              {a.handle}
-            </button>
-          ))
-        }
-      </div>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-2 gap-3 px-5">
-    {
-      gallery.map((piece) => {
-        const both = piece.fresh && piece.healed;
-        const artist = artists.find((a) => a.id === piece.artist);
-        return (
-          <figure
-            class="gallery-card overflow-hidden rounded-2xl border border-line bg-surface shadow-(--shadow-card)"
-            data-style={piece.style}
-            data-artist={piece.artist}
-            data-photo
-          >
-            <button
-              type="button"
-              class="relative block aspect-square w-full cursor-zoom-in"
-              data-lb-open
-              aria-label={t.gallery.zoom}
-            >
-              {piece.fresh && (
-                <Image
-                  src={piece.fresh}
-                  alt={`${getStyle(piece.style)?.name[locale] ?? piece.style} — ${artist?.handle ?? piece.artist}`}
-                  width={640}
-                  class="variant-fresh absolute inset-0 h-full w-full object-cover"
-                />
-              )}
-              {piece.healed && (
-                <Image
-                  src={piece.healed}
-                  alt={`${getStyle(piece.style)?.name[locale] ?? piece.style} (${t.gallery.healed}) — ${artist?.handle ?? piece.artist}`}
-                  width={640}
-                  class:list={[
-                    'variant-healed absolute inset-0 h-full w-full object-cover',
-                    piece.fresh && 'hidden',
-                  ]}
-                />
-              )}
-            </button>
-            {both && (
-              <div class="pointer-events-none absolute right-2 bottom-12 left-2 flex rounded-full border border-line bg-bg/85 p-0.5 text-[0.65rem] font-bold backdrop-blur-sm">
-                <button type="button" class="seg active pointer-events-auto flex-1 rounded-full py-1" data-variant="fresh">
-                  {t.gallery.fresh}
-                </button>
-                <button type="button" class="seg pointer-events-auto flex-1 rounded-full py-1" data-variant="healed">
-                  {t.gallery.healed}
-                </button>
-              </div>
-            )}
-            <figcaption class="flex items-center justify-between gap-1 p-2.5 text-xs">
-              <span class="caption-style font-display font-semibold">
-                {getStyle(piece.style)?.name[locale] ?? piece.style}
-              </span>
-              <span class="caption-artist text-ink-soft">{artist?.handle ?? piece.artist}</span>
-            </figcaption>
-          </figure>
-        );
-      })
-    }
-
-    {
-      placeholders.map(({ style, artist }) => (
-        <figure
-          class="gallery-card overflow-hidden rounded-2xl border border-line bg-surface shadow-(--shadow-card)"
-          data-style={style.id}
-          data-artist={artist.id}
-        >
-          <div
-            class:list={[
-              'relative grid aspect-square place-items-center',
-              style.mood === 'cat' ? 'bg-accent-soft/40' : 'bg-charcoal/90',
-            ]}
-            role="img"
-            aria-label={t.gallery.placeholderAlt}
-          >
-            {style.mood === 'cat' ? <Cat class="w-24 opacity-80" /> : <Cobra class="h-24 opacity-80" />}
-            <span class="absolute top-2 right-2 rounded-full bg-bg/85 px-2 py-0.5 text-[0.6rem] font-bold tracking-wide uppercase backdrop-blur-sm">
-              {t.common.comingSoon}
+<div
+  data-gallery
+  data-api={apiUrl}
+  data-mode={artistId ? 'profile' : 'gallery'}
+  data-locked-artist={artistId ?? ''}
+  data-locked-style={styleId ?? ''}
+  data-locale={locale}
+  data-labels={JSON.stringify({
+    styles: styleLabels,
+    designs: designLabels,
+    artists: artistLabels,
+    fresh: t.gallery.fresh,
+    healed: t.gallery.healed,
+    zoom: t.gallery.zoom,
+    emptyTitle: t.gallery.emptyTitle,
+    emptyBody: t.gallery.emptyBody,
+    loading: locale === 'es' ? 'Cargando…' : 'Loading…',
+  })}
+>
+  <!-- filter bar: labelled rows of ghost chips, sticky under the header -->
+  {
+    (showStyleFilter || showArtistFilter) && (
+      <div
+        class="sticky z-40 mb-4 border-b border-line bg-bg/85 py-2.5 backdrop-blur-md"
+        style="top: calc(3.5rem + env(safe-area-inset-top))"
+      >
+        {showStyleFilter && (
+          <div class="filter-line" role="group" aria-label={t.gallery.filterStyle} data-style-chips>
+            <span class="filter-label" aria-hidden="true">
+              {t.gallery.filterStyle}
             </span>
+            <div class="filter-scroll">
+              <button type="button" class="fchip active" data-filter-style="all">
+                {t.gallery.all}
+              </button>
+              {styles.map((s) => (
+                <button type="button" class="fchip" data-filter-style={s.id}>
+                  {s.name[locale]}
+                </button>
+              ))}
+            </div>
           </div>
-          <figcaption class="flex items-center justify-between gap-1 p-2.5 text-xs">
-            <span class="font-display font-semibold">{style.name[locale]}</span>
-            <span class="text-ink-soft">{artist.handle}</span>
-          </figcaption>
-        </figure>
-      ))
-    }
-  </div>
+        )}
+        {showArtistFilter && (
+          <div class="filter-line mt-1.5" role="group" aria-label={t.gallery.filterArtist} data-artist-chips>
+            <span class="filter-label" aria-hidden="true">
+              {t.gallery.filterArtist}
+            </span>
+            <div class="filter-scroll">
+              <button type="button" class="fchip active" data-filter-artist="all">
+                {t.gallery.all}
+              </button>
+              {artists.map((a) => (
+                <button type="button" class="fchip" data-filter-artist={a.id}>
+                  {a.handle}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        <div class="filter-line mt-1.5 hidden" role="group" aria-label={t.gallery.filterDesign} data-design-line>
+          <span class="filter-label" aria-hidden="true">
+            {t.gallery.filterDesign}
+          </span>
+          <div class="filter-scroll" data-design-chips>
+            <button type="button" class="fchip active" data-filter-design="all">
+              {t.gallery.all}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  <p data-gallery-loading class="mx-5 rounded-2xl border border-line bg-surface p-5 text-center text-sm text-ink-soft">
+    {locale === 'es' ? 'Cargando…' : 'Loading…'}
+  </p>
+
+  <div class="grid grid-cols-2 gap-3 px-5" data-gallery-grid></div>
 
   <p data-gallery-empty class="mx-5 mt-4 hidden rounded-2xl border border-line bg-surface p-5 text-center text-sm text-ink-soft">
     <strong class="font-display text-ink">{t.gallery.emptyTitle}</strong>
@@ -203,15 +163,19 @@ const placeholders =
   </div>
 </div>
 
-<style>
+{/* global: cards and design chips are injected client-side, so scoped styles would miss them */}
+<style is:global>
   /* --- filter bar ---------------------------------------------------- */
-  .filter-line {
+  [data-gallery] .filter-line {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding-left: 1.25rem;
   }
-  .filter-label {
+  [data-gallery] .filter-line.hidden {
+    display: none;
+  }
+  [data-gallery] .filter-label {
     flex: 0 0 3.4rem;
     font-size: 0.6rem;
     font-weight: 700;
@@ -219,7 +183,7 @@ const placeholders =
     text-transform: uppercase;
     color: var(--text-soft);
   }
-  .filter-scroll {
+  [data-gallery] .filter-scroll {
     display: flex;
     gap: 0.25rem;
     overflow-x: auto;
@@ -227,10 +191,10 @@ const placeholders =
     padding-right: 1.25rem;
     mask-image: linear-gradient(to right, transparent, black 10px, black calc(100% - 24px), transparent);
   }
-  .filter-scroll::-webkit-scrollbar {
+  [data-gallery] .filter-scroll::-webkit-scrollbar {
     display: none;
   }
-  .fchip {
+  [data-gallery] .fchip {
     flex: 0 0 auto;
     border: 1px solid transparent;
     border-radius: 999px;
@@ -243,22 +207,22 @@ const placeholders =
       background-color 180ms ease,
       border-color 180ms ease;
   }
-  .fchip.active {
+  [data-gallery] .fchip.active {
     color: var(--accent-strong);
     background: color-mix(in srgb, var(--accent) 13%, transparent);
     border-color: color-mix(in srgb, var(--accent) 32%, transparent);
   }
 
-  .gallery-card {
+  [data-gallery] .gallery-card {
     position: relative;
   }
-  .seg.active {
+  [data-gallery] .seg.active {
     background: var(--accent);
     color: #26231f;
   }
 
   /* --- lightbox ------------------------------------------------------ */
-  .lb {
+  [data-gallery] .lb {
     position: fixed;
     inset: 0;
     z-index: 60;
@@ -270,7 +234,7 @@ const placeholders =
     color: #f0e7c9;
     padding-top: calc(env(safe-area-inset-top) + 3.2rem);
   }
-  .lb.open {
+  [data-gallery] .lb.open {
     display: flex;
     animation: lb-in 220ms ease both;
   }
@@ -282,11 +246,11 @@ const placeholders =
       opacity: 1;
     }
   }
-  .lb img {
+  [data-gallery] .lb img {
     transition: opacity 200ms ease;
     box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.7);
   }
-  .lb-btn {
+  [data-gallery] .lb-btn {
     display: grid;
     place-items: center;
     width: 2.5rem;
@@ -298,56 +262,211 @@ const placeholders =
     backdrop-filter: blur(6px);
     transition: background-color 160ms ease;
   }
-  .lb-btn:active {
+  [data-gallery] .lb-btn:active {
     background: rgb(240 231 201 / 0.2);
   }
-  .lb-nav {
+  [data-gallery] .lb-nav {
     position: absolute;
     top: 50%;
     translate: 0 -50%;
   }
-  .lb .seg {
-    color: rgb(240 231 201 / 0.75);
-  }
-  .lb .seg.active {
-    color: #26231f;
-  }
-  [data-lb-variants] {
+  [data-gallery] .lb-nav.hidden {
     display: none;
   }
-  [data-lb-variants].show {
+  [data-gallery] .lb .seg {
+    color: rgb(240 231 201 / 0.75);
+  }
+  [data-gallery] .lb .seg.active {
+    color: #26231f;
+  }
+  [data-gallery] [data-lb-variants] {
+    display: none;
+  }
+  [data-gallery] [data-lb-variants].show {
     display: flex;
   }
   @media (prefers-reduced-motion: reduce) {
-    .lb.open {
+    [data-gallery] .lb.open {
       animation: none;
     }
-    .lb img {
+    [data-gallery] .lb img {
       transition: none;
     }
   }
 </style>
 
 <script>
+  type MediaItem = {
+    id: string;
+    artist_id?: string | null;
+    style_id?: string | null;
+    design_id?: string | null;
+    slug?: string | null;
+    variant?: string | null;
+    title?: string | null;
+    caption?: string | null;
+    alt?: { en?: string | null; es?: string | null };
+    tags?: string[];
+    url: string;
+  };
+
   function initGallery() {
     const root = document.querySelector<HTMLElement>('[data-gallery]');
     if (!root || root.dataset.init) return;
     root.dataset.init = '1';
 
-    /* ---------- filters ---------- */
-    const state = { style: 'all', artist: 'all' };
+    const api = root.dataset.api!;
+    const labels = JSON.parse(root.dataset.labels || '{}') as {
+      styles: Record<string, string>;
+      designs: Record<string, string>;
+      artists: Record<string, string>;
+      fresh: string;
+      healed: string;
+      zoom: string;
+      emptyTitle: string;
+      emptyBody: string;
+    };
+    const locale = root.dataset.locale || 'en';
+
+    const state = {
+      style: root.dataset.lockedStyle || 'all',
+      artist: root.dataset.lockedArtist || 'all',
+      design: 'all',
+    };
+
+    const grid = root.querySelector<HTMLElement>('[data-gallery-grid]')!;
+    const loadingEl = root.querySelector<HTMLElement>('[data-gallery-loading]');
+    const emptyEl = root.querySelector<HTMLElement>('[data-gallery-empty]');
+    const designLine = root.querySelector<HTMLElement>('[data-design-line]');
+    const designChips = root.querySelector<HTMLElement>('[data-design-chips]');
 
     const applyFilters = () => {
       let visible = 0;
       root.querySelectorAll<HTMLElement>('.gallery-card').forEach((card) => {
         const show =
           (state.style === 'all' || card.dataset.style === state.style) &&
-          (state.artist === 'all' || card.dataset.artist === state.artist);
+          (state.artist === 'all' || card.dataset.artist === state.artist) &&
+          (state.design === 'all' || card.dataset.design === state.design);
         card.classList.toggle('hidden', !show);
         if (show) visible++;
       });
-      root.querySelector('[data-gallery-empty]')?.classList.toggle('hidden', visible > 0);
+      emptyEl?.classList.toggle('hidden', visible > 0);
     };
+
+    const render = (items: MediaItem[]) => {
+      loadingEl?.classList.add('hidden');
+      grid.innerHTML = '';
+
+      if (!items.length) {
+        emptyEl?.classList.remove('hidden');
+        return;
+      }
+      emptyEl?.classList.add('hidden');
+
+      // Design chips from data
+      const usedDesigns = new Set(items.map((i) => i.design_id).filter(Boolean) as string[]);
+      if (designLine && designChips && usedDesigns.size) {
+        designLine.classList.remove('hidden');
+        const allBtn = designChips.querySelector('[data-filter-design="all"]');
+        designChips.innerHTML = '';
+        if (allBtn) designChips.appendChild(allBtn);
+        else {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'fchip active';
+          b.dataset.filterDesign = 'all';
+          b.textContent = locale === 'es' ? 'Todos' : 'All';
+          designChips.appendChild(b);
+        }
+        for (const id of usedDesigns) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'fchip';
+          b.dataset.filterDesign = id;
+          b.textContent = labels.designs[id] || id;
+          designChips.appendChild(b);
+        }
+      }
+
+      // Group fresh/healed pairs by artist+style+slug when possible
+      const groups = new Map<string, { fresh?: MediaItem; healed?: MediaItem; any: MediaItem }>();
+      for (const item of items) {
+        const key = `${item.artist_id || ''}__${item.style_id || ''}__${item.slug || item.id}`;
+        const g = groups.get(key) || { any: item };
+        if (item.variant === 'fresh') g.fresh = item;
+        else if (item.variant === 'healed') g.healed = item;
+        g.any = item;
+        groups.set(key, g);
+      }
+
+      for (const g of groups.values()) {
+        const primary = g.fresh || g.healed || g.any;
+        const secondary = g.fresh && g.healed ? g.healed : null;
+        const both = !!(g.fresh && g.healed);
+        const styleId = primary.style_id || '';
+        const artistId = primary.artist_id || '';
+        const designId = primary.design_id || 'other';
+        const styleName = labels.styles[styleId] || styleId;
+        const artistName = labels.artists[artistId] || artistId;
+        const designName = labels.designs[designId] || '';
+        const alt =
+          (locale === 'es' ? primary.alt?.es : primary.alt?.en) ||
+          primary.title ||
+          [styleName, designName, artistName].filter(Boolean).join(' · ');
+
+        const fig = document.createElement('figure');
+        fig.className =
+          'gallery-card overflow-hidden rounded-2xl border border-line bg-surface shadow-(--shadow-card)';
+        fig.dataset.style = styleId;
+        fig.dataset.artist = artistId;
+        fig.dataset.design = designId;
+        fig.dataset.photo = '';
+
+        fig.innerHTML = `
+          <button type="button" class="relative block aspect-square w-full cursor-zoom-in" data-lb-open
+            aria-label="${escapeHtml(labels.zoom || 'View larger')}">
+            <img src="${primary.url}" alt="${escapeHtml(alt)}" width="640" height="640"
+              class="variant-fresh absolute inset-0 h-full w-full object-cover" loading="lazy" />
+            ${
+              both && secondary
+                ? `<img src="${secondary.url}" alt="${escapeHtml(alt)} (${labels.healed})" width="640" height="640"
+                  class="variant-healed absolute inset-0 h-full w-full object-cover hidden" loading="lazy" />`
+                : ''
+            }
+          </button>
+          ${
+            both
+              ? `<div class="pointer-events-none absolute right-2 bottom-12 left-2 flex rounded-full border border-line bg-bg/85 p-0.5 text-[0.65rem] font-bold backdrop-blur-sm">
+                  <button type="button" class="seg active pointer-events-auto flex-1 rounded-full py-1" data-variant="fresh">${labels.fresh}</button>
+                  <button type="button" class="seg pointer-events-auto flex-1 rounded-full py-1" data-variant="healed">${labels.healed}</button>
+                </div>`
+              : ''
+          }
+          <figcaption class="flex flex-col gap-0.5 p-2.5 text-xs">
+            <div class="flex items-center justify-between gap-1">
+              <span class="caption-style font-display font-semibold">${escapeHtml(styleName)}</span>
+              <span class="caption-artist text-ink-soft">${escapeHtml(artistName)}</span>
+            </div>
+            ${
+              designId && designId !== 'other' && designName
+                ? `<span class="text-[0.65rem] font-medium tracking-wide text-ink-soft uppercase">${escapeHtml(designName)}</span>`
+                : ''
+            }
+          </figcaption>
+        `;
+        grid.appendChild(fig);
+      }
+
+      applyFilters();
+    };
+
+    function escapeHtml(s: string) {
+      return s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
 
     /* ---------- lightbox ---------- */
     type Variant = 'fresh' | 'healed';
@@ -358,9 +477,9 @@ const placeholders =
     const lbCount = lb.querySelector<HTMLElement>('[data-lb-count]')!;
     const lbVariants = lb.querySelector<HTMLElement>('[data-lb-variants]')!;
 
-    let items: HTMLElement[] = [];
-    let index = 0;
-    let variant: Variant = 'fresh';
+    let lbItems: HTMLElement[] = [];
+    let lbIndex = 0;
+    let lbVariant: Variant = 'fresh';
 
     const cardImg = (card: HTMLElement, v: Variant) =>
       card.querySelector<HTMLImageElement>(`img.variant-${v}`);
@@ -373,14 +492,14 @@ const placeholders =
         .forEach((s) => s.classList.toggle('active', s.dataset.variant === v));
     };
 
-    const render = (fade = true) => {
-      const card = items[index];
+    const renderLb = (fade = true) => {
+      const card = lbItems[lbIndex];
       if (!card) return;
       const hasFresh = !!cardImg(card, 'fresh');
       const hasHealed = !!cardImg(card, 'healed');
-      if ((variant === 'fresh' && !hasFresh) || (variant === 'healed' && !hasHealed))
-        variant = hasFresh ? 'fresh' : 'healed';
-      const img = cardImg(card, variant)!;
+      if ((lbVariant === 'fresh' && !hasFresh) || (lbVariant === 'healed' && !hasHealed))
+        lbVariant = hasFresh ? 'fresh' : 'healed';
+      const img = cardImg(card, lbVariant)!;
 
       if (fade) lbImg.style.opacity = '0';
       lbImg.onload = () => (lbImg.style.opacity = '1');
@@ -390,22 +509,22 @@ const placeholders =
 
       lbStyle.textContent = card.querySelector('.caption-style')?.textContent?.trim() ?? '';
       lbArtist.textContent = card.querySelector('.caption-artist')?.textContent?.trim() ?? '';
-      lbCount.textContent = items.length > 1 ? `${index + 1} / ${items.length}` : '';
+      lbCount.textContent = lbItems.length > 1 ? `${lbIndex + 1} / ${lbItems.length}` : '';
 
       lbVariants.classList.toggle('show', hasFresh && hasHealed);
       lbVariants
         .querySelectorAll<HTMLElement>('[data-lb-variant]')
-        .forEach((s) => s.classList.toggle('active', s.dataset.lbVariant === variant));
+        .forEach((s) => s.classList.toggle('active', s.dataset.lbVariant === lbVariant));
 
-      const nav = items.length > 1;
+      const nav = lbItems.length > 1;
       lb.querySelectorAll<HTMLElement>('.lb-nav').forEach((b) => b.classList.toggle('hidden', !nav));
     };
 
     const openLb = (card: HTMLElement) => {
-      items = [...root.querySelectorAll<HTMLElement>('.gallery-card[data-photo]:not(.hidden)')];
-      index = Math.max(0, items.indexOf(card));
-      variant = cardImg(card, 'fresh')?.classList.contains('hidden') ? 'healed' : 'fresh';
-      render(false);
+      lbItems = [...root.querySelectorAll<HTMLElement>('.gallery-card[data-photo]:not(.hidden)')];
+      lbIndex = Math.max(0, lbItems.indexOf(card));
+      lbVariant = cardImg(card, 'fresh')?.classList.contains('hidden') ? 'healed' : 'fresh';
+      renderLb(false);
       lb.classList.add('open');
       document.documentElement.style.overflow = 'hidden';
       lb.querySelector<HTMLElement>('[data-lb-close]')?.focus();
@@ -416,10 +535,10 @@ const placeholders =
       document.documentElement.style.overflow = '';
     };
 
-    const step = (dir: number) => {
-      if (items.length < 2) return;
-      index = (index + dir + items.length) % items.length;
-      render();
+    const stepLb = (dir: number) => {
+      if (lbItems.length < 2) return;
+      lbIndex = (lbIndex + dir + lbItems.length) % lbItems.length;
+      renderLb();
     };
 
     /* ---------- events ---------- */
@@ -428,14 +547,14 @@ const placeholders =
 
       // lightbox controls
       if (el.closest('[data-lb-close]')) return closeLb();
-      if (el.closest('[data-lb-prev]')) return step(-1);
-      if (el.closest('[data-lb-next]')) return step(1);
+      if (el.closest('[data-lb-prev]')) return stepLb(-1);
+      if (el.closest('[data-lb-next]')) return stepLb(1);
       const lbSeg = el.closest<HTMLElement>('[data-lb-variant]');
       if (lbSeg) {
-        variant = lbSeg.dataset.lbVariant as Variant;
-        render();
-        const card = items[index];
-        if (card) syncCardVariant(card, variant);
+        lbVariant = lbSeg.dataset.lbVariant as Variant;
+        renderLb();
+        const card = lbItems[lbIndex];
+        if (card) syncCardVariant(card, lbVariant);
         return;
       }
       // tap on the dimmed area (not the image) closes
@@ -445,11 +564,16 @@ const placeholders =
       // filter chips
       const styleChip = el.closest<HTMLElement>('[data-filter-style]');
       const artistChip = el.closest<HTMLElement>('[data-filter-artist]');
-      if (styleChip || artistChip) {
-        const chip = (styleChip ?? artistChip)!;
-        const key = styleChip ? 'style' : 'artist';
-        const attr = styleChip ? 'data-filter-style' : 'data-filter-artist';
-        state[key as 'style' | 'artist'] = chip.getAttribute(attr)!;
+      const designChip = el.closest<HTMLElement>('[data-filter-design]');
+      if (styleChip || artistChip || designChip) {
+        const chip = (styleChip ?? artistChip ?? designChip)!;
+        const key = styleChip ? 'style' : artistChip ? 'artist' : 'design';
+        const attr = styleChip
+          ? 'data-filter-style'
+          : artistChip
+            ? 'data-filter-artist'
+            : 'data-filter-design';
+        state[key as 'style' | 'artist' | 'design'] = chip.getAttribute(attr)!;
         chip.parentElement
           ?.querySelectorAll('.fchip')
           .forEach((c) => c.classList.toggle('active', c === chip));
@@ -478,8 +602,8 @@ const placeholders =
       (event) => {
         if (!lb.classList.contains('open')) return;
         if (event.key === 'Escape') closeLb();
-        else if (event.key === 'ArrowLeft') step(-1);
-        else if (event.key === 'ArrowRight') step(1);
+        else if (event.key === 'ArrowLeft') stepLb(-1);
+        else if (event.key === 'ArrowRight') stepLb(1);
       },
       { signal: ac.signal },
     );
@@ -508,11 +632,41 @@ const placeholders =
       (event) => {
         const dx = event.changedTouches[0]!.clientX - touchX;
         const dy = event.changedTouches[0]!.clientY - touchY;
-        if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+        if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) stepLb(dx < 0 ? 1 : -1);
         else if (dy > 72 && Math.abs(dy) > Math.abs(dx) * 1.5) closeLb();
       },
       { passive: true },
     );
+
+    // deep-link filters via hash (e.g. #artist=doomkitten or #style=horror)
+    const hash = location.hash.replace(/^#/, '');
+    if (hash) {
+      const params = new URLSearchParams(hash.includes('=') ? hash : `artist=${hash}`);
+      for (const key of ['artist', 'style', 'design'] as const) {
+        const val = params.get(key);
+        if (!val) continue;
+        state[key] = val;
+        const chip = root.querySelector<HTMLElement>(`[data-filter-${key}="${val}"]`);
+        if (chip) {
+          chip.parentElement
+            ?.querySelectorAll('.fchip')
+            .forEach((c) => c.classList.toggle('active', c === chip));
+        }
+      }
+    }
+
+    fetch(api, { credentials: 'same-origin' })
+      .then((r) => r.json())
+      .then((json) => {
+        if (!json?.ok) throw new Error(json?.error?.message || 'API error');
+        const items = (json.data?.media || []) as MediaItem[];
+        render(items);
+      })
+      .catch(() => {
+        loadingEl?.classList.add('hidden');
+        emptyEl?.classList.remove('hidden');
+      });
   }
+
   document.addEventListener('astro:page-load', initGallery);
 </script>

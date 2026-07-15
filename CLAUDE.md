@@ -42,8 +42,8 @@ Two themes — "cat" (light, cream/peach) and "cobra" (dark, charcoal/teal) — 
 
 ### Content and data
 
-- Artists: `src/data/artists.ts`; styles: `src/data/styles.ts` (referenced by ID from gallery filenames).
-- Gallery is convention-driven: `src/data/gallery.ts` globs `src/assets/gallery/**` and parses filenames `<artistId>__<styleId>__<piece-slug>__<fresh|healed>.<ext>`; fresh/healed variants sharing a slug merge into one card with a toggle. Adding photos requires no code changes.
+- Artists: `src/data/artists.ts`; styles: `src/data/styles.ts`; designs: `src/data/designs.ts` (referenced by ID from gallery filenames).
+- Gallery photos live in `src/assets/gallery/` named `<artistId>__<styleId>__<piece-slug>__<fresh|healed>.<ext>`. The public gallery page fetches from the Worker API (`/api/public/gallery`, D1-backed with admin publish flags) and renders cards client-side; `npm run gallery:index` (also the `prebuild` step) reindexes files for the admin. The React admin dashboard is at `src/admin/`, Worker API routes at `src/worker/api/`.
 
 ### Logo assets
 
